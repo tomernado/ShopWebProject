@@ -64,4 +64,9 @@ class AccountServiceTest {
 
         assertFalse(response.isSuccess());
     }
+
+    @Test
+    void getAllEmployeesReturnsEveryEmployeeInTheDirectory() {
+        assertEquals(3, accountService.getAllEmployees().size());
+    }
 }

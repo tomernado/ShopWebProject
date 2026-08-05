@@ -125,4 +125,32 @@ class SaleIntegrationTest {
             assertEquals("Dana Customer", customersResponse.getCustomers().get(0).getFullName());
         }
     }
+
+    @Test
+    void loggedInEmployeeCanListAllNetworkEmployees() throws Exception {
+        EmployeeDirectory employeeDirectory = new EmployeeDirectory();
+        AuthService authService = new AuthService(employeeDirectory);
+        AccountService accountService = new AccountService(employeeDirectory, new PasswordPolicy());
+        SaleService saleService = new SaleService(new ProductCatalog(employeeDirectory), new CustomerDirectory());
+        server = new Server(TEST_PORT, authService, accountService, saleService);
+
+        Thread serverThread = new Thread(server::start);
+        serverThread.start();
+        Thread.sleep(200);
+
+        try (Socket socket = new Socket("localhost", TEST_PORT);
+             ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+             ObjectInputStream in = new ObjectInputStream(socket.getInputStream())) {
+
+            out.writeObject(new LoginRequest("yossi.c", "pass456"));
+            out.flush();
+            in.readObject(); // LoginResponse
+
+            out.writeObject(new GetEmployeesRequest());
+            out.flush();
+            GetEmployeesResponse response = (GetEmployeesResponse) in.readObject();
+
+            assertEquals(3, response.getEmployees().size());
+        }
+    }
 }
