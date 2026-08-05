@@ -4,6 +4,7 @@ import model.Branch;
 import model.Inventory;
 import model.Product;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,5 +36,9 @@ public class ProductCatalog {
 
     public Inventory getInventoryForBranch(String branchId) {
         return inventoryByBranchId.get(branchId);
+    }
+
+    public Collection<Product> getAllProducts() {
+        return productsById.values();
     }
 }

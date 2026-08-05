@@ -67,4 +67,23 @@ class SaleServiceTest {
         assertEquals(1, saleService.getSalesLedger().size());
         assertEquals("Customer A", saleService.getSalesLedger().get(0).getCustomerFullName());
     }
+
+    @Test
+    void inventorySnapshotReflectsCurrentStockForEmployeesBranch() {
+        var snapshot = saleService.getInventorySnapshot(cashier);
+
+        assertEquals(3, snapshot.size());
+        var milk = snapshot.stream().filter(item -> item.getProductId().equals("P1")).findFirst().orElseThrow();
+        assertEquals(50, milk.getAvailableQuantity());
+    }
+
+    @Test
+    void inventorySnapshotReflectsStockAfterASale() {
+        saleService.recordSale(cashier, new RecordSaleRequest("A", "1", "050", CustomerType.NEW, "P1", 5));
+
+        var snapshot = saleService.getInventorySnapshot(cashier);
+        var milk = snapshot.stream().filter(item -> item.getProductId().equals("P1")).findFirst().orElseThrow();
+
+        assertEquals(45, milk.getAvailableQuantity());
+    }
 }

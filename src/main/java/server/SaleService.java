@@ -66,6 +66,17 @@ public class SaleService {
         return RecordSaleResponse.success(finalAmount);
     }
 
+    public synchronized List<InventoryItem> getInventorySnapshot(Employee employee) {
+        Inventory inventory = productCatalog.getInventoryForBranch(employee.getBranch().getBranchId());
+        List<InventoryItem> items = new ArrayList<>();
+        for (Product product : productCatalog.getAllProducts()) {
+            int quantity = inventory != null ? inventory.getQuantity(product) : 0;
+            items.add(new InventoryItem(product.getProductId(), product.getName(), product.getCategory(),
+                    product.getPrice(), quantity));
+        }
+        return items;
+    }
+
     private Customer buildCustomer(RecordSaleRequest request) {
         String name = request.getCustomerFullName();
         String id = request.getCustomerIdNumber();
