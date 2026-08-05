@@ -8,6 +8,8 @@ import server.GetEmployeesRequest;
 import server.GetEmployeesResponse;
 import server.GetInventoryRequest;
 import server.GetInventoryResponse;
+import server.GetSalesReportRequest;
+import server.GetSalesReportResponse;
 import server.LoginRequest;
 import server.LoginResponse;
 import server.RecordSaleRequest;
@@ -67,6 +69,13 @@ public class ServerConnection implements Closeable {
         out.writeObject(new GetEmployeesRequest());
         out.flush();
         return (GetEmployeesResponse) in.readObject();
+    }
+
+    public GetSalesReportResponse getSalesReport(String groupBy, boolean todayOnly)
+            throws IOException, ClassNotFoundException {
+        out.writeObject(new GetSalesReportRequest(groupBy, todayOnly));
+        out.flush();
+        return (GetSalesReportResponse) in.readObject();
     }
 
     @Override
