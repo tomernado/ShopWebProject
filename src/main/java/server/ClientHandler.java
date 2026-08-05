@@ -8,12 +8,18 @@ import chat.ChatRequest;
 import chat.JoinChatRequest;
 import chat.ListActiveChatsRequest;
 import model.Employee;
+import model.Role;
+import reports.ReportGenerator;
+import reports.SalesReport;
 
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class ClientHandler implements Runnable, ChatParticipant {
     private final Socket socket;
@@ -86,6 +92,8 @@ public class ClientHandler implements Runnable, ChatParticipant {
                 send(new GetCustomersResponse(saleService.getAllCustomers()));
             } else if (message instanceof GetEmployeesRequest) {
                 send(new GetEmployeesResponse(accountService.getAllEmployees()));
+            } else if (message instanceof GetSalesReportRequest request) {
+                send(buildSalesReport(request));
             } else if (message instanceof ChatRequest) {
                 send(ChatDispatcher.getInstance().requestChat(this));
             } else if (message instanceof JoinChatRequest request) {
@@ -96,6 +104,36 @@ public class ClientHandler implements Runnable, ChatParticipant {
                 send(new ActiveChatsResponse(ChatDispatcher.getInstance().listActiveChats()));
             }
         }
+    }
+
+    // "Kind of privacy for employees wouldn't hurt" (spec) — comparing branches
+    // against each other is manager-only; per-product/category totals aren't
+    // branch-specific, so any employee can view those.
+    private GetSalesReportResponse buildSalesReport(GetSalesReportRequest request) {
+        if (request.getGroupBy().equals("branch") && loggedInEmployee.getRole() != Role.MANAGER) {
+            return GetSalesReportResponse.failure("Only a manager can view the cross-branch report");
+        }
+
+        List<SaleRecord> sales = saleService.getSalesLedger();
+        if (request.isTodayOnly()) {
+            LocalDate today = LocalDate.now();
+            sales = sales.stream()
+                    .filter(sale -> sale.getTimestamp().toLocalDate().equals(today))
+                    .collect(Collectors.toList());
+        }
+
+        ReportGenerator generator = new ReportGenerator();
+        SalesReport report = switch (request.getGroupBy()) {
+            case "branch" -> generator.byBranch(sales);
+            case "product" -> generator.byProduct(sales);
+            case "category" -> generator.byCategory(sales);
+            default -> null;
+        };
+
+        if (report == null) {
+            return GetSalesReportResponse.failure("Unknown grouping: " + request.getGroupBy());
+        }
+        return GetSalesReportResponse.success(report);
     }
 
     private void closeSocket() {

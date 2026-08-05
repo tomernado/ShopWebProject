@@ -153,4 +153,70 @@ class SaleIntegrationTest {
             assertEquals(3, response.getEmployees().size());
         }
     }
+
+    @Test
+    void nonManagerCannotRequestTheBranchReportButCanRequestByProduct() throws Exception {
+        EmployeeDirectory employeeDirectory = new EmployeeDirectory();
+        AuthService authService = new AuthService(employeeDirectory);
+        AccountService accountService = new AccountService(employeeDirectory, new PasswordPolicy());
+        SaleService saleService = new SaleService(new ProductCatalog(employeeDirectory), new CustomerDirectory());
+        server = new Server(TEST_PORT, authService, accountService, saleService);
+
+        Thread serverThread = new Thread(server::start);
+        serverThread.start();
+        Thread.sleep(200);
+
+        try (Socket socket = new Socket("localhost", TEST_PORT);
+             ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+             ObjectInputStream in = new ObjectInputStream(socket.getInputStream())) {
+
+            out.writeObject(new LoginRequest("yossi.c", "pass456")); // CASHIER
+            out.flush();
+            in.readObject(); // LoginResponse
+
+            out.writeObject(new RecordSaleRequest("Customer A", "1", "050", CustomerType.NEW, "P1", 2));
+            out.flush();
+            in.readObject(); // RecordSaleResponse
+
+            out.writeObject(new GetSalesReportRequest("branch", false));
+            out.flush();
+            GetSalesReportResponse branchResponse = (GetSalesReportResponse) in.readObject();
+            assertFalse(branchResponse.isSuccess());
+
+            out.writeObject(new GetSalesReportRequest("product", true));
+            out.flush();
+            GetSalesReportResponse productResponse = (GetSalesReportResponse) in.readObject();
+            assertTrue(productResponse.isSuccess());
+            assertEquals(1, productResponse.getReport().getLines().size());
+            assertEquals(2, productResponse.getReport().getLines().get(0).getTotalQuantity());
+        }
+    }
+
+    @Test
+    void managerCanRequestTheBranchReport() throws Exception {
+        EmployeeDirectory employeeDirectory = new EmployeeDirectory();
+        AuthService authService = new AuthService(employeeDirectory);
+        AccountService accountService = new AccountService(employeeDirectory, new PasswordPolicy());
+        SaleService saleService = new SaleService(new ProductCatalog(employeeDirectory), new CustomerDirectory());
+        server = new Server(TEST_PORT, authService, accountService, saleService);
+
+        Thread serverThread = new Thread(server::start);
+        serverThread.start();
+        Thread.sleep(200);
+
+        try (Socket socket = new Socket("localhost", TEST_PORT);
+             ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+             ObjectInputStream in = new ObjectInputStream(socket.getInputStream())) {
+
+            out.writeObject(new LoginRequest("dana.l", "secret123")); // MANAGER
+            out.flush();
+            in.readObject(); // LoginResponse
+
+            out.writeObject(new GetSalesReportRequest("branch", false));
+            out.flush();
+            GetSalesReportResponse response = (GetSalesReportResponse) in.readObject();
+
+            assertTrue(response.isSuccess());
+        }
+    }
 }
