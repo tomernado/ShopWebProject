@@ -4,5 +4,5 @@ target/
 *.iml
 *.log
 .DS_Store
-logs/
-reports/
+/logs/
+/reports/
