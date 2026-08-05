@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 public class SystemLogger {
     private static final SystemLogger INSTANCE = new SystemLogger(Path.of("logs", "system.log"));
@@ -32,6 +33,18 @@ public class SystemLogger {
             writer.println(line);
         } catch (IOException e) {
             System.err.println("Failed to write log entry: " + e.getMessage());
+        }
+    }
+
+    public synchronized List<String> readAllLines() {
+        try {
+            if (!Files.exists(logFilePath)) {
+                return List.of();
+            }
+            return Files.readAllLines(logFilePath);
+        } catch (IOException e) {
+            System.err.println("Failed to read log file: " + e.getMessage());
+            return List.of();
         }
     }
 
