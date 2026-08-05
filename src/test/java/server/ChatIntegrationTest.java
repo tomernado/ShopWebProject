@@ -176,7 +176,8 @@ class ChatIntegrationTest {
         EmployeeDirectory employeeDirectory = new EmployeeDirectory();
         AuthService authService = new AuthService(employeeDirectory);
         AccountService accountService = new AccountService(employeeDirectory, new PasswordPolicy());
-        server = new Server(TEST_PORT, authService, accountService);
+        SaleService saleService = new SaleService(new ProductCatalog(employeeDirectory));
+        server = new Server(TEST_PORT, authService, accountService, saleService);
 
         Thread serverThread = new Thread(server::start);
         serverThread.start();

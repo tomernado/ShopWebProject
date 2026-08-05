@@ -10,6 +10,8 @@ import server.CreateAccountResponse;
 import server.EmployeeDirectory;
 import server.LoginResponse;
 import server.PasswordPolicy;
+import server.ProductCatalog;
+import server.SaleService;
 import server.Server;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -65,7 +67,8 @@ class ServerConnectionIntegrationTest {
         EmployeeDirectory employeeDirectory = new EmployeeDirectory();
         AuthService authService = new AuthService(employeeDirectory);
         AccountService accountService = new AccountService(employeeDirectory, new PasswordPolicy());
-        server = new Server(TEST_PORT, authService, accountService);
+        SaleService saleService = new SaleService(new ProductCatalog(employeeDirectory));
+        server = new Server(TEST_PORT, authService, accountService, saleService);
 
         Thread serverThread = new Thread(server::start);
         serverThread.start();

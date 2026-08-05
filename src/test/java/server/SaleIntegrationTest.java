@@ -1,5 +1,6 @@
 package server;
 
+import model.CustomerType;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
@@ -9,8 +10,8 @@ import java.net.Socket;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class ServerIntegrationTest {
-    private static final int TEST_PORT = 6000;
+class SaleIntegrationTest {
+    private static final int TEST_PORT = 6300;
     private Server server;
 
     @AfterEach
@@ -21,30 +22,32 @@ class ServerIntegrationTest {
     }
 
     @Test
-    void clientCanLogInOverARealSocket() throws Exception {
+    void loggedInEmployeeCanRecordASale() throws Exception {
         EmployeeDirectory employeeDirectory = new EmployeeDirectory();
         AuthService authService = new AuthService(employeeDirectory);
         AccountService accountService = new AccountService(employeeDirectory, new PasswordPolicy());
         SaleService saleService = new SaleService(new ProductCatalog(employeeDirectory));
         server = new Server(TEST_PORT, authService, accountService, saleService);
+
         Thread serverThread = new Thread(server::start);
         serverThread.start();
-        Thread.sleep(200); // give the accept loop time to start listening
+        Thread.sleep(200);
 
         try (Socket socket = new Socket("localhost", TEST_PORT);
-             // create the output stream before the input stream on both ends —
-             // ObjectInputStream's constructor blocks waiting for the other side's
-             // stream header, so mismatched order deadlocks the connection.
              ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
              ObjectInputStream in = new ObjectInputStream(socket.getInputStream())) {
 
-            out.writeObject(new LoginRequest("dana.l", "secret123"));
+            out.writeObject(new LoginRequest("yossi.c", "pass456"));
+            out.flush();
+            in.readObject(); // LoginResponse
+
+            out.writeObject(new RecordSaleRequest("Customer A", "1", "050", CustomerType.RETURNING, "P1", 2));
             out.flush();
 
-            LoginResponse response = (LoginResponse) in.readObject();
+            RecordSaleResponse response = (RecordSaleResponse) in.readObject();
 
             assertTrue(response.isSuccess());
-            assertEquals("Dana Levi", response.getEmployee().getFullName());
+            assertEquals(12.35, response.getFinalAmount(), 0.0001); // 2 * 6.5 = 13, -5% = 12.35
         }
     }
 }
