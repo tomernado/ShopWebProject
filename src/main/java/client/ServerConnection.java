@@ -2,8 +2,12 @@ package client;
 
 import server.CreateAccountRequest;
 import server.CreateAccountResponse;
+import server.GetInventoryRequest;
+import server.GetInventoryResponse;
 import server.LoginRequest;
 import server.LoginResponse;
+import server.RecordSaleRequest;
+import server.RecordSaleResponse;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -35,6 +39,18 @@ public class ServerConnection implements Closeable {
         out.writeObject(request);
         out.flush();
         return (CreateAccountResponse) in.readObject();
+    }
+
+    public RecordSaleResponse recordSale(RecordSaleRequest request) throws IOException, ClassNotFoundException {
+        out.writeObject(request);
+        out.flush();
+        return (RecordSaleResponse) in.readObject();
+    }
+
+    public GetInventoryResponse getInventory() throws IOException, ClassNotFoundException {
+        out.writeObject(new GetInventoryRequest());
+        out.flush();
+        return (GetInventoryResponse) in.readObject();
     }
 
     @Override
