@@ -1,5 +1,7 @@
 package chat;
 
+import model.Role;
+
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -31,6 +33,21 @@ public class ChatDispatcher {
 
         partner.send(new ChatStarted(session.getSessionId(), requester.getEmployee()));
         return new ChatStarted(session.getSessionId(), partner.getEmployee());
+    }
+
+    public synchronized JoinChatResponse joinChat(String sessionId, ChatParticipant participant) {
+        if (participant.getEmployee().getRole() != Role.MANAGER) {
+            return JoinChatResponse.failure("Only a shift manager can join an existing chat");
+        }
+
+        ChatSession session = sessionsById.get(sessionId);
+        if (session == null) {
+            return JoinChatResponse.failure("Chat session not found");
+        }
+
+        session.addParticipant(participant);
+        session.broadcast(new ParticipantJoined(sessionId, participant.getEmployee()), participant);
+        return JoinChatResponse.success();
     }
 
     private ChatParticipant findWaitingPartnerFromDifferentBranch(ChatParticipant requester) {

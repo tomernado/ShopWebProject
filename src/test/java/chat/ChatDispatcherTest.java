@@ -76,4 +76,45 @@ class ChatDispatcherTest {
         ChatStarted started = (ChatStarted) outcome;
         assertEquals(first.getEmployee(), started.getPeer());
     }
+
+    @Test
+    void managerCanJoinAnExistingSessionAndOthersAreNotified() {
+        FakeChatParticipant first = participant("yossi", Role.CASHIER, branch1);
+        FakeChatParticipant second = participant("noa", Role.SELLER, branch2);
+        dispatcher.requestChat(first);
+        ChatStarted started = (ChatStarted) dispatcher.requestChat(second);
+
+        FakeChatParticipant manager = participant("dana", Role.MANAGER, branch1);
+        JoinChatResponse response = dispatcher.joinChat(started.getSessionId(), manager);
+
+        assertTrue(response.isSuccess());
+
+        assertEquals(2, first.getReceived().size());
+        assertInstanceOf(ParticipantJoined.class, first.getReceived().get(1));
+
+        assertEquals(1, second.getReceived().size());
+        assertInstanceOf(ParticipantJoined.class, second.getReceived().get(0));
+    }
+
+    @Test
+    void nonManagerCannotJoinAnExistingSession() {
+        FakeChatParticipant first = participant("yossi", Role.CASHIER, branch1);
+        FakeChatParticipant second = participant("noa", Role.SELLER, branch2);
+        dispatcher.requestChat(first);
+        ChatStarted started = (ChatStarted) dispatcher.requestChat(second);
+
+        FakeChatParticipant cashier = participant("moshe", Role.CASHIER, branch1);
+        JoinChatResponse response = dispatcher.joinChat(started.getSessionId(), cashier);
+
+        assertFalse(response.isSuccess());
+    }
+
+    @Test
+    void joiningAnUnknownSessionFails() {
+        FakeChatParticipant manager = participant("dana", Role.MANAGER, branch1);
+
+        JoinChatResponse response = dispatcher.joinChat("no-such-session", manager);
+
+        assertFalse(response.isSuccess());
+    }
 }
