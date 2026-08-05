@@ -92,4 +92,37 @@ class SaleIntegrationTest {
             assertEquals(beforeQty - 2, afterQty);
         }
     }
+
+    @Test
+    void customerAppearsInNetworkWideDirectoryAfterASale() throws Exception {
+        EmployeeDirectory employeeDirectory = new EmployeeDirectory();
+        AuthService authService = new AuthService(employeeDirectory);
+        AccountService accountService = new AccountService(employeeDirectory, new PasswordPolicy());
+        SaleService saleService = new SaleService(new ProductCatalog(employeeDirectory), new CustomerDirectory());
+        server = new Server(TEST_PORT, authService, accountService, saleService);
+
+        Thread serverThread = new Thread(server::start);
+        serverThread.start();
+        Thread.sleep(200);
+
+        try (Socket socket = new Socket("localhost", TEST_PORT);
+             ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+             ObjectInputStream in = new ObjectInputStream(socket.getInputStream())) {
+
+            out.writeObject(new LoginRequest("yossi.c", "pass456"));
+            out.flush();
+            in.readObject(); // LoginResponse
+
+            out.writeObject(new RecordSaleRequest("Dana Customer", "555", "050", CustomerType.NEW, "P1", 1));
+            out.flush();
+            in.readObject(); // RecordSaleResponse
+
+            out.writeObject(new GetCustomersRequest());
+            out.flush();
+            GetCustomersResponse customersResponse = (GetCustomersResponse) in.readObject();
+
+            assertEquals(1, customersResponse.getCustomers().size());
+            assertEquals("Dana Customer", customersResponse.getCustomers().get(0).getFullName());
+        }
+    }
 }
