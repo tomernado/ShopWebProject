@@ -219,4 +219,44 @@ class SaleIntegrationTest {
             assertTrue(response.isSuccess());
         }
     }
+
+    @Test
+    void nonManagerCannotViewLogsButManagerCan() throws Exception {
+        EmployeeDirectory employeeDirectory = new EmployeeDirectory();
+        AuthService authService = new AuthService(employeeDirectory);
+        AccountService accountService = new AccountService(employeeDirectory, new PasswordPolicy());
+        SaleService saleService = new SaleService(new ProductCatalog(employeeDirectory), new CustomerDirectory());
+        server = new Server(TEST_PORT, authService, accountService, saleService);
+
+        Thread serverThread = new Thread(server::start);
+        serverThread.start();
+        Thread.sleep(200);
+
+        try (Socket cashierSocket = new Socket("localhost", TEST_PORT);
+             ObjectOutputStream cashierOut = new ObjectOutputStream(cashierSocket.getOutputStream());
+             ObjectInputStream cashierIn = new ObjectInputStream(cashierSocket.getInputStream());
+             Socket managerSocket = new Socket("localhost", TEST_PORT);
+             ObjectOutputStream managerOut = new ObjectOutputStream(managerSocket.getOutputStream());
+             ObjectInputStream managerIn = new ObjectInputStream(managerSocket.getInputStream())) {
+
+            cashierOut.writeObject(new LoginRequest("yossi.c", "pass456"));
+            cashierOut.flush();
+            cashierIn.readObject(); // LoginResponse — also produces a log line
+
+            cashierOut.writeObject(new GetLogsRequest());
+            cashierOut.flush();
+            GetLogsResponse cashierResponse = (GetLogsResponse) cashierIn.readObject();
+            assertFalse(cashierResponse.isSuccess());
+
+            managerOut.writeObject(new LoginRequest("dana.l", "secret123"));
+            managerOut.flush();
+            managerIn.readObject(); // LoginResponse
+
+            managerOut.writeObject(new GetLogsRequest());
+            managerOut.flush();
+            GetLogsResponse managerResponse = (GetLogsResponse) managerIn.readObject();
+            assertTrue(managerResponse.isSuccess());
+            assertFalse(managerResponse.getLines().isEmpty());
+        }
+    }
 }

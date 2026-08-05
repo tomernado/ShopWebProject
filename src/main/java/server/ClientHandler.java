@@ -7,6 +7,7 @@ import chat.ChatParticipant;
 import chat.ChatRequest;
 import chat.JoinChatRequest;
 import chat.ListActiveChatsRequest;
+import logging.SystemLogger;
 import model.Employee;
 import model.Role;
 import reports.ReportGenerator;
@@ -94,6 +95,8 @@ public class ClientHandler implements Runnable, ChatParticipant {
                 send(new GetEmployeesResponse(accountService.getAllEmployees()));
             } else if (message instanceof GetSalesReportRequest request) {
                 send(buildSalesReport(request));
+            } else if (message instanceof GetLogsRequest) {
+                send(buildLogsResponse());
             } else if (message instanceof ChatRequest) {
                 send(ChatDispatcher.getInstance().requestChat(this));
             } else if (message instanceof JoinChatRequest request) {
@@ -134,6 +137,13 @@ public class ClientHandler implements Runnable, ChatParticipant {
             return GetSalesReportResponse.failure("Unknown grouping: " + request.getGroupBy());
         }
         return GetSalesReportResponse.success(report);
+    }
+
+    private GetLogsResponse buildLogsResponse() {
+        if (loggedInEmployee.getRole() != Role.MANAGER) {
+            return GetLogsResponse.failure("Only a manager can view system logs");
+        }
+        return GetLogsResponse.success(SystemLogger.getInstance().readAllLines());
     }
 
     private void closeSocket() {
