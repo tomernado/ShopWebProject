@@ -19,14 +19,16 @@ public class ClientHandler implements Runnable, ChatParticipant {
     private final Socket socket;
     private final AuthService authService;
     private final AccountService accountService;
+    private final SaleService saleService;
     private ObjectOutputStream out;
     private ObjectInputStream in;
     private Employee loggedInEmployee;
 
-    public ClientHandler(Socket socket, AuthService authService, AccountService accountService) {
+    public ClientHandler(Socket socket, AuthService authService, AccountService accountService, SaleService saleService) {
         this.socket = socket;
         this.authService = authService;
         this.accountService = accountService;
+        this.saleService = saleService;
     }
 
     @Override
@@ -76,6 +78,8 @@ public class ClientHandler implements Runnable, ChatParticipant {
             Object message = in.readObject();
             if (message instanceof CreateAccountRequest request) {
                 send(accountService.createAccount(loggedInEmployee.getRole(), request));
+            } else if (message instanceof RecordSaleRequest request) {
+                send(saleService.recordSale(loggedInEmployee, request));
             } else if (message instanceof ChatRequest) {
                 send(ChatDispatcher.getInstance().requestChat(this));
             } else if (message instanceof JoinChatRequest request) {

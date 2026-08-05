@@ -1,5 +1,6 @@
 package server;
 
+import logging.SystemLogger;
 import model.Employee;
 
 import java.util.Set;
@@ -26,10 +27,13 @@ public class AuthService {
             return LoginResponse.failure("User already logged in from another location");
         }
 
+        SystemLogger.getInstance().log("EMPLOYEE", "Login: " + username);
         return LoginResponse.success(employee);
     }
 
     public void logout(String username) {
-        activeSessions.remove(username);
+        if (activeSessions.remove(username)) {
+            SystemLogger.getInstance().log("EMPLOYEE", "Logout: " + username);
+        }
     }
 }
