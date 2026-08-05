@@ -2,8 +2,16 @@ package client;
 
 import server.CreateAccountRequest;
 import server.CreateAccountResponse;
+import server.GetCustomersRequest;
+import server.GetCustomersResponse;
+import server.GetEmployeesRequest;
+import server.GetEmployeesResponse;
 import server.GetInventoryRequest;
 import server.GetInventoryResponse;
+import server.GetLogsRequest;
+import server.GetLogsResponse;
+import server.GetSalesReportRequest;
+import server.GetSalesReportResponse;
 import server.LoginRequest;
 import server.LoginResponse;
 import server.RecordSaleRequest;
@@ -51,6 +59,31 @@ public class ServerConnection implements Closeable {
         out.writeObject(new GetInventoryRequest());
         out.flush();
         return (GetInventoryResponse) in.readObject();
+    }
+
+    public GetCustomersResponse getCustomers() throws IOException, ClassNotFoundException {
+        out.writeObject(new GetCustomersRequest());
+        out.flush();
+        return (GetCustomersResponse) in.readObject();
+    }
+
+    public GetEmployeesResponse getEmployees() throws IOException, ClassNotFoundException {
+        out.writeObject(new GetEmployeesRequest());
+        out.flush();
+        return (GetEmployeesResponse) in.readObject();
+    }
+
+    public GetSalesReportResponse getSalesReport(String groupBy, boolean todayOnly)
+            throws IOException, ClassNotFoundException {
+        out.writeObject(new GetSalesReportRequest(groupBy, todayOnly));
+        out.flush();
+        return (GetSalesReportResponse) in.readObject();
+    }
+
+    public GetLogsResponse getLogs() throws IOException, ClassNotFoundException {
+        out.writeObject(new GetLogsRequest());
+        out.flush();
+        return (GetLogsResponse) in.readObject();
     }
 
     @Override

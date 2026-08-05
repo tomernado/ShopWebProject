@@ -140,7 +140,8 @@ class ChatIntegrationTest {
             login(managerOut, managerIn, "dana.l", "secret123");
 
             managerOut.writeObject(new CreateAccountRequest(
-                    "100000010", "Moshe Katz", "moshe.k", "pw123456", Role.CASHIER, "B1"));
+                    "100000010", "Moshe Katz", "050-1000010", "AC-1010", "E-010",
+                    "moshe.k", "pw123456", Role.CASHIER, "B1"));
             managerOut.flush();
             CreateAccountResponse createResponse = (CreateAccountResponse) managerIn.readObject();
             assertTrue(createResponse.isSuccess());
@@ -176,7 +177,7 @@ class ChatIntegrationTest {
         EmployeeDirectory employeeDirectory = new EmployeeDirectory();
         AuthService authService = new AuthService(employeeDirectory);
         AccountService accountService = new AccountService(employeeDirectory, new PasswordPolicy());
-        SaleService saleService = new SaleService(new ProductCatalog(employeeDirectory));
+        SaleService saleService = new SaleService(new ProductCatalog(employeeDirectory), new CustomerDirectory());
         server = new Server(TEST_PORT, authService, accountService, saleService);
 
         Thread serverThread = new Thread(server::start);

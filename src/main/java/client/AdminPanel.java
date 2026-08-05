@@ -14,13 +14,16 @@ public class AdminPanel extends JPanel {
 
     private final JTextField idNumberField = new JTextField(15);
     private final JTextField fullNameField = new JTextField(15);
+    private final JTextField phoneField = new JTextField(15);
+    private final JTextField accountNumberField = new JTextField(15);
+    private final JTextField employeeNumberField = new JTextField(15);
     private final JTextField usernameField = new JTextField(15);
     private final JPasswordField passwordField = new JPasswordField(15);
     private final JComboBox<Role> roleBox = new JComboBox<>(Role.values());
     private final JComboBox<Branch> branchBox;
     private final JLabel statusLabel = new JLabel(" ");
 
-    public AdminPanel(ServerConnection connection, List<Branch> branches) {
+    public AdminPanel(ServerConnection connection, List<Branch> branches, Runnable onBack) {
         this.connection = connection;
         this.branchBox = new JComboBox<>(branches.toArray(new Branch[0]));
 
@@ -28,22 +31,32 @@ public class AdminPanel extends JPanel {
         GridBagConstraints c = new GridBagConstraints();
         c.insets = new Insets(5, 5, 5, 5);
 
-        addRow(c, 0, "ת\"ז:", idNumberField);
-        addRow(c, 1, "שם מלא:", fullNameField);
-        addRow(c, 2, "שם משתמש:", usernameField);
-        addRow(c, 3, "סיסמה:", passwordField);
-        addRow(c, 4, "תפקיד:", roleBox);
-        addRow(c, 5, "סניף:", branchBox);
+        JButton backButton = new JButton("חזרה");
+        backButton.addActionListener(e -> onBack.run());
+        c.gridx = 0;
+        c.gridy = 0;
+        c.gridwidth = 2;
+        add(backButton, c);
+
+        addRow(c, 1, "ת\"ז:", idNumberField);
+        addRow(c, 2, "שם מלא:", fullNameField);
+        addRow(c, 3, "טלפון:", phoneField);
+        addRow(c, 4, "מספר חשבון:", accountNumberField);
+        addRow(c, 5, "מספר עובד:", employeeNumberField);
+        addRow(c, 6, "שם משתמש:", usernameField);
+        addRow(c, 7, "סיסמה:", passwordField);
+        addRow(c, 8, "תפקיד:", roleBox);
+        addRow(c, 9, "סניף:", branchBox);
 
         JButton createButton = new JButton("צור חשבון");
         createButton.addActionListener(e -> attemptCreateAccount());
         c.gridx = 0;
-        c.gridy = 6;
+        c.gridy = 10;
         c.gridwidth = 2;
         add(createButton, c);
 
         statusLabel.setForeground(Color.RED);
-        c.gridy = 7;
+        c.gridy = 11;
         add(statusLabel, c);
     }
 
@@ -62,6 +75,9 @@ public class AdminPanel extends JPanel {
             CreateAccountRequest request = new CreateAccountRequest(
                     idNumberField.getText(),
                     fullNameField.getText(),
+                    phoneField.getText(),
+                    accountNumberField.getText(),
+                    employeeNumberField.getText(),
                     usernameField.getText(),
                     new String(passwordField.getPassword()),
                     (Role) roleBox.getSelectedItem(),

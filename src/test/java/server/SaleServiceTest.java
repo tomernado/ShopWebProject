@@ -11,9 +11,10 @@ import static org.junit.jupiter.api.Assertions.*;
 class SaleServiceTest {
     private final EmployeeDirectory employeeDirectory = new EmployeeDirectory();
     private final ProductCatalog productCatalog = new ProductCatalog(employeeDirectory);
-    private final SaleService saleService = new SaleService(productCatalog);
+    private final SaleService saleService = new SaleService(productCatalog, new CustomerDirectory());
     private final Branch branch = employeeDirectory.findBranchById("B1");
-    private final Employee cashier = new Employee("1", "Yossi Cohen", "yossi.c", "pw", Role.CASHIER, branch);
+    private final Employee cashier = new Employee("1", "Yossi Cohen", "050-1000002", "AC-1002", "E-002",
+            "yossi.c", "pw", Role.CASHIER, branch);
 
     @Test
     void newCustomerPaysFullPriceAndStockIsReduced() {
@@ -85,5 +86,14 @@ class SaleServiceTest {
         var milk = snapshot.stream().filter(item -> item.getProductId().equals("P1")).findFirst().orElseThrow();
 
         assertEquals(45, milk.getAvailableQuantity());
+    }
+
+    @Test
+    void successfulSaleRegistersCustomerInTheDirectory() {
+        saleService.recordSale(cashier, new RecordSaleRequest("Alice", "9", "050", CustomerType.NEW, "P1", 1));
+
+        var customers = saleService.getAllCustomers();
+        assertEquals(1, customers.size());
+        assertEquals("Alice", customers.get(0).getFullName());
     }
 }

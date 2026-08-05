@@ -25,10 +25,11 @@ public class PurchasePanel extends JPanel {
     private final JComboBox<CustomerType> customerTypeBox = new JComboBox<>(CustomerType.values());
     private final JLabel statusLabel = new JLabel(" ");
 
-    public PurchasePanel(ServerConnection connection) {
+    public PurchasePanel(ServerConnection connection, Runnable onBack) {
         this.connection = connection;
 
         setLayout(new BorderLayout(10, 10));
+        add(buildBackButton(onBack), BorderLayout.NORTH);
         add(new JScrollPane(inventoryTable), BorderLayout.CENTER);
         add(buildFormPanel(), BorderLayout.SOUTH);
 
@@ -43,6 +44,12 @@ public class PurchasePanel extends JPanel {
         });
 
         refreshInventory();
+    }
+
+    private JButton buildBackButton(Runnable onBack) {
+        JButton backButton = new JButton("חזרה");
+        backButton.addActionListener(e -> onBack.run());
+        return backButton;
     }
 
     private JPanel buildFormPanel() {

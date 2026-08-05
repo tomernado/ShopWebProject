@@ -5,6 +5,8 @@ import model.Branch;
 import model.Employee;
 import model.Role;
 
+import java.util.List;
+
 public class AccountService {
     private final EmployeeDirectory employeeDirectory;
     private final PasswordPolicy passwordPolicy;
@@ -36,6 +38,9 @@ public class AccountService {
         Employee newEmployee = new Employee(
                 request.getIdNumber(),
                 request.getFullName(),
+                request.getPhone(),
+                request.getAccountNumber(),
+                request.getEmployeeNumber(),
                 request.getUsername(),
                 request.getPassword(),
                 request.getRole(),
@@ -46,5 +51,9 @@ public class AccountService {
                 "Created account: " + request.getUsername() + " (" + request.getRole() + ")");
 
         return CreateAccountResponse.success();
+    }
+
+    public List<Employee> getAllEmployees() {
+        return employeeDirectory.getAllEmployees();
     }
 }

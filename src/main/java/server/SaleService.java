@@ -16,10 +16,12 @@ import java.util.List;
 
 public class SaleService {
     private final ProductCatalog productCatalog;
+    private final CustomerDirectory customerDirectory;
     private final List<SaleRecord> salesLedger = new ArrayList<>();
 
-    public SaleService(ProductCatalog productCatalog) {
+    public SaleService(ProductCatalog productCatalog, CustomerDirectory customerDirectory) {
         this.productCatalog = productCatalog;
+        this.customerDirectory = customerDirectory;
     }
 
     public synchronized RecordSaleResponse recordSale(Employee employee, RecordSaleRequest request) {
@@ -42,6 +44,7 @@ public class SaleService {
         double finalAmount = customer.purchase(totalBeforeDiscount);
 
         inventory.reduceStock(product, request.getQuantity());
+        customerDirectory.registerOrUpdate(customer);
 
         SaleRecord record = new SaleRecord(
                 employee.getBranch().getBranchId(),
@@ -90,5 +93,9 @@ public class SaleService {
 
     public synchronized List<SaleRecord> getSalesLedger() {
         return Collections.unmodifiableList(new ArrayList<>(salesLedger));
+    }
+
+    public List<Customer> getAllCustomers() {
+        return customerDirectory.getAllCustomers();
     }
 }

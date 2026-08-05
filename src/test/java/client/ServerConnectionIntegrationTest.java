@@ -7,6 +7,7 @@ import server.AccountService;
 import server.AuthService;
 import server.CreateAccountRequest;
 import server.CreateAccountResponse;
+import server.CustomerDirectory;
 import server.EmployeeDirectory;
 import server.LoginResponse;
 import server.PasswordPolicy;
@@ -36,7 +37,8 @@ class ServerConnectionIntegrationTest {
             assertTrue(managerLogin.isSuccess());
 
             CreateAccountResponse createResponse = managerConnection.createAccount(
-                    new CreateAccountRequest("100000009", "Roi Biton", "roi.b", "abcdef1", Role.SELLER, "B1"));
+                    new CreateAccountRequest("100000009", "Roi Biton", "050-9999999", "AC-9009", "E-009",
+                            "roi.b", "abcdef1", Role.SELLER, "B1"));
             assertTrue(createResponse.isSuccess());
         }
 
@@ -57,7 +59,8 @@ class ServerConnectionIntegrationTest {
             assertTrue(cashierLogin.isSuccess());
 
             CreateAccountResponse response = cashierConnection.createAccount(
-                    new CreateAccountRequest("100000009", "Roi Biton", "roi.b", "abcdef1", Role.SELLER, "B1"));
+                    new CreateAccountRequest("100000009", "Roi Biton", "050-9999999", "AC-9009", "E-009",
+                            "roi.b", "abcdef1", Role.SELLER, "B1"));
 
             assertFalse(response.isSuccess());
         }
@@ -67,7 +70,7 @@ class ServerConnectionIntegrationTest {
         EmployeeDirectory employeeDirectory = new EmployeeDirectory();
         AuthService authService = new AuthService(employeeDirectory);
         AccountService accountService = new AccountService(employeeDirectory, new PasswordPolicy());
-        SaleService saleService = new SaleService(new ProductCatalog(employeeDirectory));
+        SaleService saleService = new SaleService(new ProductCatalog(employeeDirectory), new CustomerDirectory());
         server = new Server(TEST_PORT, authService, accountService, saleService);
 
         Thread serverThread = new Thread(server::start);

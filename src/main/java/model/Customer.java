@@ -1,6 +1,8 @@
 package model;
 
-public abstract class Customer {
+import java.io.Serializable;
+
+public abstract class Customer implements Serializable {
     private final String fullName;
     private final String idNumber;
     private final String phone;
