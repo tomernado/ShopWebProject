@@ -1,0 +1,927 @@
+<style>
+  :root {
+    --bg: #faf7f1;
+    --surface: #ffffff;
+    --surface-2: #f2ead9;
+    --ink: #221c14;
+    --ink-muted: #6c6252;
+    --line: #e3d9c2;
+    --accent: #a9752e;
+    --accent-ink: #ffffff;
+    --accent-soft: #f1e3c9;
+    --good: #2f6b48;
+    --good-soft: #e3efe4;
+    --warn: #a34a26;
+    --warn-soft: #f6e6dc;
+    --info: #35617e;
+    --info-soft: #e3edf3;
+    --code-bg: #1e2530;
+    --code-ink: #dbe1ea;
+    --code-accent: #e0b46a;
+    --shadow: 0 1px 2px rgba(34, 28, 20, 0.06), 0 8px 24px rgba(34, 28, 20, 0.05);
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #14171c;
+    --surface: #1a1e25;
+    --surface-2: #21262f;
+    --ink: #ece6d8;
+    --ink-muted: #a49c8a;
+    --line: #2c313b;
+    --accent: #dba75a;
+    --accent-ink: #1a1305;
+    --accent-soft: #332711;
+    --good: #7fc79a;
+    --good-soft: #17281e;
+    --warn: #e39a6d;
+    --warn-soft: #2c1c13;
+    --info: #8bbcdb;
+    --info-soft: #182530;
+    --code-bg: #10141a;
+    --code-ink: #dbe1ea;
+    --code-accent: #e7c184;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 12px 28px rgba(0, 0, 0, 0.35);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #14171c;
+      --surface: #1a1e25;
+      --surface-2: #21262f;
+      --ink: #ece6d8;
+      --ink-muted: #a49c8a;
+      --line: #2c313b;
+      --accent: #dba75a;
+      --accent-ink: #1a1305;
+      --accent-soft: #332711;
+      --good: #7fc79a;
+      --good-soft: #17281e;
+      --warn: #e39a6d;
+      --warn-soft: #2c1c13;
+      --info: #8bbcdb;
+      --info-soft: #182530;
+      --code-bg: #10141a;
+      --code-ink: #dbe1ea;
+      --code-accent: #e7c184;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 12px 28px rgba(0, 0, 0, 0.35);
+    }
+  }
+
+  html, body {
+    direction: rtl;
+    background: var(--bg);
+    color: var(--ink);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    font-family: "Segoe UI", Arial, "Noto Sans Hebrew", sans-serif;
+    font-size: 16px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .eyebrow {
+    font-family: ui-monospace, "Cascadia Code", Consolas, "SF Mono", monospace;
+    direction: ltr;
+    unicode-bidi: isolate;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent);
+  }
+
+  h1, h2, h3, h4 { text-wrap: balance; margin: 0; font-weight: 700; }
+  p { margin: 0; }
+  code, .mono { font-family: ui-monospace, "Cascadia Code", Consolas, "SF Mono", monospace; direction: ltr; unicode-bidi: isolate; }
+
+  a { color: var(--accent); }
+
+  .wrap {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 0 24px 96px;
+  }
+
+  /* ---------- header ---------- */
+  .hero {
+    border-bottom: 1px solid var(--line);
+    padding: 56px 0 40px;
+    margin-bottom: 8px;
+  }
+  .hero .eyebrow { display: block; margin-bottom: 14px; }
+  .hero h1 {
+    font-size: clamp(28px, 4vw, 40px);
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+  }
+  .hero .sub {
+    margin-top: 14px;
+    max-width: 62ch;
+    color: var(--ink-muted);
+    font-size: 17px;
+  }
+  .stat-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 28px;
+  }
+  .stat {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 12px 18px;
+    min-width: 108px;
+    box-shadow: var(--shadow);
+  }
+  .stat .n {
+    font-family: ui-monospace, "Cascadia Code", Consolas, "SF Mono", monospace;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--accent);
+    direction: ltr;
+  }
+  .stat .l { font-size: 12.5px; color: var(--ink-muted); margin-top: 2px; }
+
+  /* ---------- layout with side nav ---------- */
+  .layout {
+    display: grid;
+    grid-template-columns: 1fr 220px;
+    gap: 48px;
+    align-items: start;
+    margin-top: 40px;
+  }
+  @media (max-width: 860px) {
+    .layout { grid-template-columns: 1fr; }
+    nav.toc { display: none; }
+  }
+  nav.toc {
+    position: sticky;
+    top: 24px;
+    border-right: 1px solid var(--line);
+    padding-right: 20px;
+    font-size: 14px;
+  }
+  nav.toc .eyebrow { display: block; margin-bottom: 12px; }
+  nav.toc ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 9px; }
+  nav.toc a { color: var(--ink-muted); text-decoration: none; display: block; }
+  nav.toc a:hover { color: var(--accent); }
+
+  main { min-width: 0; }
+
+  section { margin-bottom: 64px; scroll-margin-top: 20px; }
+  section > .eyebrow { display: block; margin-bottom: 10px; }
+  section > h2 { font-size: 25px; margin-bottom: 6px; }
+  section > .lede { color: var(--ink-muted); max-width: 68ch; margin-top: 10px; font-size: 15.5px; }
+
+  /* ---------- prose blocks ---------- */
+  .prose { max-width: 72ch; }
+  .prose p + p { margin-top: 14px; }
+  .prose ul, .prose ol { margin: 14px 0 0; padding-inline-start: 22px; }
+  .prose li + li { margin-top: 6px; }
+
+  /* ---------- architecture grid ---------- */
+  .arch-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 14px;
+    margin-top: 24px;
+  }
+  .arch-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 18px 20px;
+    box-shadow: var(--shadow);
+  }
+  .arch-card .pkg {
+    font-family: ui-monospace, "Cascadia Code", Consolas, "SF Mono", monospace;
+    direction: ltr;
+    unicode-bidi: isolate;
+    color: var(--accent);
+    font-weight: 700;
+    font-size: 14px;
+  }
+  .arch-card h4 { margin-top: 4px; font-size: 15.5px; }
+  .arch-card p { margin-top: 8px; font-size: 14px; color: var(--ink-muted); }
+  .arch-card .files { margin-top: 10px; font-size: 12.5px; color: var(--ink-muted); direction: ltr; unicode-bidi: isolate; text-align: left; line-height: 1.5; }
+
+  .flow {
+    margin-top: 28px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    font-size: 13.5px;
+  }
+  .flow .box {
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-weight: 600;
+  }
+  .flow .arrow { color: var(--ink-muted); font-size: 16px; }
+
+  /* ---------- status chip ---------- */
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12.5px;
+    font-weight: 700;
+    padding: 3px 11px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+  .chip.full { background: var(--good-soft); color: var(--good); }
+  .chip.partial { background: var(--warn-soft); color: var(--warn); }
+  .chip.note { background: var(--info-soft); color: var(--info); }
+
+  /* ---------- requirement cards ---------- */
+  .req-group { margin-top: 36px; }
+  .req-group > .gh {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 14px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--line);
+  }
+  .req-group > .gh .num {
+    font-family: ui-monospace, "Cascadia Code", Consolas, "SF Mono", monospace;
+    color: var(--accent);
+    font-weight: 700;
+    font-size: 14px;
+    direction: ltr;
+  }
+  .req-group > .gh h3 { font-size: 18px; }
+
+  .req-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 18px 20px;
+    box-shadow: var(--shadow);
+  }
+  .req-card + .req-card { margin-top: 12px; }
+  .req-card .top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .req-card .spec {
+    font-size: 15px;
+    color: var(--ink-muted);
+    font-style: normal;
+    max-width: 60ch;
+  }
+  .req-card .spec b { color: var(--ink); font-weight: 600; }
+  .req-card .impl {
+    margin-top: 12px;
+    font-size: 14.5px;
+    border-top: 1px dashed var(--line);
+    padding-top: 12px;
+  }
+  .req-card .impl .files {
+    margin-top: 6px;
+    font-family: ui-monospace, "Cascadia Code", Consolas, "SF Mono", monospace;
+    direction: ltr;
+    unicode-bidi: isolate;
+    text-align: left;
+    font-size: 12.5px;
+    color: var(--accent);
+    line-height: 1.7;
+  }
+
+  /* ---------- stage timeline ---------- */
+  .stage {
+    display: grid;
+    grid-template-columns: 64px 1fr;
+    gap: 20px;
+    padding-bottom: 32px;
+    position: relative;
+  }
+  .stage::before {
+    content: "";
+    position: absolute;
+    right: 31px;
+    top: 44px;
+    bottom: -4px;
+    width: 1px;
+    background: var(--line);
+  }
+  .stage:last-child::before { display: none; }
+  .stage .dot {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: ui-monospace, "Cascadia Code", Consolas, "SF Mono", monospace;
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--accent);
+    flex-shrink: 0;
+  }
+  .stage .body h4 { font-size: 16.5px; }
+  .stage .body .tag { font-size: 12.5px; color: var(--ink-muted); margin-top: 3px; }
+  .stage .body p { margin-top: 10px; font-size: 14.5px; color: var(--ink-muted); max-width: 66ch; }
+
+  /* ---------- pattern cards ---------- */
+  .pattern-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-top: 22px; }
+  .pattern-card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 20px 22px; box-shadow: var(--shadow); }
+  .pattern-card .eyebrow { display: block; margin-bottom: 6px; }
+  .pattern-card h4 { font-size: 16.5px; }
+  .pattern-card p { margin-top: 10px; font-size: 14.5px; color: var(--ink-muted); }
+  .pattern-card pre {
+    margin-top: 12px;
+    background: var(--code-bg);
+    color: var(--code-ink);
+    padding: 12px 14px;
+    border-radius: 8px;
+    font-size: 12.5px;
+    overflow-x: auto;
+    direction: ltr;
+    text-align: left;
+    line-height: 1.6;
+  }
+  .pattern-card pre .k { color: var(--code-accent); }
+
+  /* ---------- test table ---------- */
+  .table-wrap { overflow-x: auto; margin-top: 20px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); box-shadow: var(--shadow); }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 560px; }
+  th, td { padding: 10px 16px; text-align: right; border-bottom: 1px solid var(--line); }
+  th { font-size: 12.5px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-muted); font-weight: 700; }
+  tr:last-child td { border-bottom: none; }
+  td.num, th.num { font-family: ui-monospace, "Cascadia Code", Consolas, "SF Mono", monospace; direction: ltr; text-align: left; font-variant-numeric: tabular-nums; }
+
+  /* ---------- limitations ---------- */
+  .limit-list { display: flex; flex-direction: column; gap: 12px; margin-top: 20px; }
+  .limit-item {
+    display: grid;
+    grid-template-columns: 4px 1fr;
+    gap: 16px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+  .limit-item .bar { background: var(--warn); }
+  .limit-item .content { padding: 14px 18px 14px 0; }
+  .limit-item h4 { font-size: 15px; }
+  .limit-item p { margin-top: 6px; font-size: 14px; color: var(--ink-muted); }
+
+  /* ---------- defense tips ---------- */
+  .tip-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; margin-top: 22px; }
+  .tip-card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 18px 20px; box-shadow: var(--shadow); }
+  .tip-card .q { font-weight: 700; font-size: 15px; }
+  .tip-card .a { margin-top: 8px; font-size: 14px; color: var(--ink-muted); }
+
+  footer { margin-top: 60px; padding-top: 24px; border-top: 1px solid var(--line); font-size: 13px; color: var(--ink-muted); }
+</style>
+
+<div class="wrap">
+
+  <header class="hero">
+    <span class="eyebrow">HIT · Java Course Project</span>
+    <h1>מערכת ניהול רשת חנויות בגדים</h1>
+    <p class="sub">
+      מערכת Client-Server ב-Java: ניהול עובדים ולקוחות רשתי, מלאי נפרד לכל סניף, רכישה פולימורפית,
+      צ'אט עם תור עובדים פנויים מבוסס Singleton, לוגים, ודוחות עם ייצוא ל-JSON ול-Word אמיתי.
+      מסמך זה ממפה כל דרישה רשמית לקוד שמממש אותה, לקראת ההגנה.
+    </p>
+    <div class="stat-row">
+      <div class="stat"><div class="n">5</div><div class="l">שלבי פיתוח</div></div>
+      <div class="stat"><div class="n">83</div><div class="l">בדיקות JUnit</div></div>
+      <div class="stat"><div class="n">70</div><div class="l">מחלקות Java</div></div>
+      <div class="stat"><div class="n">7</div><div class="l">Pull Requests</div></div>
+      <div class="stat"><div class="n">2</div><div class="l">תבניות Singleton</div></div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <nav class="toc">
+      <span class="eyebrow">בדף זה</span>
+      <ol>
+        <li><a href="#overview">סקירה כללית</a></li>
+        <li><a href="#architecture">ארכיטקטורה</a></li>
+        <li><a href="#requirements">מיפוי דרישות מלא</a></li>
+        <li><a href="#timeline">שלבי הפיתוח</a></li>
+        <li><a href="#patterns">תבניות עיצוב</a></li>
+        <li><a href="#testing">בדיקות</a></li>
+        <li><a href="#limitations">מגבלות ידועות</a></li>
+        <li><a href="#defense">נקודות להגנה</a></li>
+      </ol>
+    </nav>
+
+    <main>
+
+      <section id="overview">
+        <span class="eyebrow">01 — Overview</span>
+        <h2>מה המערכת עושה</h2>
+        <p class="lede">
+          רשת חנויות בגדים עם כמה סניפים. עובדים מתחברים מכל מחשב, רואים מידע מותאם לתפקיד ולסניף שלהם,
+          מבצעים רכישות מול מלאי אמיתי, מתקשרים עם עובדים בסניפים אחרים בצ'אט, ומנהלים דוחות ולוגים —
+          הכל דרך שרת Socket יחיד שכל הלקוחות מתחברים אליו.
+        </p>
+        <div class="prose" style="margin-top: 28px;">
+          <p>
+            הפרויקט נבנה כמטלת קורס אקדמית (HIT) — כלומר כל שורת קוד צריכה להיות ניתנת להסבר בעל-פה
+            על-ידי הסטודנט. לכן נמנענו במכוון מתבניות עיצוב, ספריות או הפשטות שלא נדרשו במפורש: אין
+            Framework כמו Spring, אין ORM, אין שכבות מיותרות — Java רגיל, Maven, Sockets סטנדרטיים,
+            ו-Swing רגיל לממשק.
+          </p>
+          <p>
+            הפיתוח התבצע ב-5 שלבים לפי תוכנית העבודה המקורית של המרצה (Entities → Server → GUI →
+            Concurrency/Chat → Reports/IO), ולאחר מכן עבר סבב סקירה נוסף מול נוסח הדרישות הרשמי המלא,
+            שבו נסגרו כמה פערים אמיתיים (ראו סעיף <a href="#requirements">מיפוי דרישות</a>).
+          </p>
+        </div>
+      </section>
+
+      <section id="architecture">
+        <span class="eyebrow">02 — Architecture</span>
+        <h2>שש חבילות, אחריות אחת לכל אחת</h2>
+        <p class="lede">כל חבילת Java אחראית על שכבה אחת ברורה. שום מחלקה לא "עושה הכל".</p>
+
+        <div class="arch-grid">
+          <div class="arch-card">
+            <div class="pkg">model</div>
+            <h4>הישויות הבסיסיות</h4>
+            <p>עובד, סניף, מוצר, מלאי, והיררכיית הלקוחות הפולימורפית. אין כאן שום תלות ברשת — נבדק כולו ביחידה.</p>
+            <div class="files">Employee · Branch · Product · Inventory · Customer + 3 תת-מחלקות</div>
+          </div>
+          <div class="arch-card">
+            <div class="pkg">server</div>
+            <h4>לוגיקת השרת</h4>
+            <p>אימות, יצירת חשבונות, רכישות, מלאי, לקוחות, דוחות — כל שירות בלי Socket כלל, נבדק ישירות.</p>
+            <div class="files">AuthService · AccountService · SaleService · ClientHandler · Server</div>
+          </div>
+          <div class="arch-card">
+            <div class="pkg">chat</div>
+            <h4>צ'אט ותורים</h4>
+            <p>ה-Singleton הראשון: תור המתנה + מפת שיחות פעילות, עם ממשק ChatParticipant שמאפשר בדיקה בלי Socket.</p>
+            <div class="files">ChatDispatcher · ChatSession · ChatParticipant</div>
+          </div>
+          <div class="arch-card">
+            <div class="pkg">logging</div>
+            <h4>לוגים</h4>
+            <p>ה-Singleton השני: אותה תבנית בדיוק כמו ChatDispatcher, לבעיה מקבילה — מופע יחיד, גישה גלובלית.</p>
+            <div class="files">SystemLogger</div>
+          </div>
+          <div class="arch-card">
+            <div class="pkg">reports</div>
+            <h4>סטטיסטיקה וייצוא</h4>
+            <p>קיבוץ מכירות, ייצוא JSON אמיתי (Gson) וייצוא Word אמיתי (Apache POI) — נבדק על-ידי קריאה חוזרת של הקובץ שנוצר.</p>
+            <div class="files">ReportGenerator · JsonReportExporter · WordReportExporter</div>
+          </div>
+          <div class="arch-card">
+            <div class="pkg">client</div>
+            <h4>ממשק Swing</h4>
+            <p>שמונה מסכים המחוברים לשרת האמיתי דרך ServerConnection — לא Mock, לא נתונים מדומים.</p>
+            <div class="files">LoginPanel · DashboardPanel · PurchasePanel · CustomersPanel<br>EmployeesPanel · ReportsPanel · LogsPanel · AdminPanel</div>
+          </div>
+        </div>
+
+        <div class="flow">
+          <span class="box">Swing Client</span>
+          <span class="arrow">⇄</span>
+          <span class="box">Socket + ObjectStream</span>
+          <span class="arrow">⇄</span>
+          <span class="box">ClientHandler (Thread לכל לקוח)</span>
+          <span class="arrow">→</span>
+          <span class="box">שירותי server</span>
+          <span class="arrow">→</span>
+          <span class="box">model</span>
+        </div>
+      </section>
+
+      <section id="requirements">
+        <span class="eyebrow">03 — Requirements Trace</span>
+        <h2>מיפוי דרישות מלא</h2>
+        <p class="lede">כל דרישה מהמסמך הרשמי (10 סעיפים + מטרות המערכת), מול הקוד שמממש אותה בפועל.</p>
+
+        <div class="req-group">
+          <div class="gh"><span class="num">§1</span><h3>ארכיטקטורת Client-Server</h3></div>
+          <div class="req-card">
+            <div class="top">
+              <p class="spec">המערכת מבוססת שרת-לקוח.</p>
+              <span class="chip full">מומש במלואו</span>
+            </div>
+            <div class="impl">שרת Socket יחיד (<code>ServerSocket</code>), Thread נפרד לכל לקוח מחובר, תקשורת דרך <code>ObjectOutputStream</code>/<code>ObjectInputStream</code>.
+              <div class="files">server.Server · server.ClientHandler · client.ServerConnection</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="req-group">
+          <div class="gh"><span class="num">§2</span><h3>מסך חיבור ואימות משתמש</h3></div>
+          <div class="req-card">
+            <div class="top">
+              <p class="spec">מסך חיבור עם ממשק אימות משתמש.</p>
+              <span class="chip full">מומש במלואו</span>
+            </div>
+            <div class="impl">מסך התחברות + מניעת התחברות כפולה של אותו משתמש ממספר מחשבים (<code>Set&lt;String&gt;</code> אטומי של משתמשים מחוברים).
+              <div class="files">client.LoginPanel · server.AuthService</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="req-group">
+          <div class="gh"><span class="num">§3</span><h3>מסך אדמין להגדרת חשבונות</h3></div>
+          <div class="req-card">
+            <div class="top">
+              <p class="spec"><b>פרטי חשבון</b> — יצירת עובדים חדשים עם כל השדות הנדרשים.</p>
+              <span class="chip full">מומש במלואו</span>
+            </div>
+            <div class="impl">רק מנהל משמרת יכול ליצור חשבון (בדיקת Role בצד שרת, לא רק הסתרת כפתור).
+              <div class="files">client.AdminPanel · server.AccountService</div>
+            </div>
+          </div>
+          <div class="req-card">
+            <div class="top">
+              <p class="spec"><b>מדיניות סיסמאות</b> — נאכפת בעת יצירת חשבון.</p>
+              <span class="chip partial">מומש חלקית</span>
+            </div>
+            <div class="impl">כלל קבוע (6 תווים לפחות + ספרה אחת) נאכף בשרת. לא נבנה מסך לעריכת המדיניות עצמה — זו הפשטה מתועדת, לא נדרש מספר מדויק במפרט.
+              <div class="files">server.PasswordPolicy</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="req-group">
+          <div class="gh"><span class="num">§4</span><h3>מידע מותאם לסוג המשתמש ולסניף</h3></div>
+          <div class="req-card">
+            <div class="top">
+              <p class="spec">בהתאם לסוג המשתמש יוצג מידע עבור הסניף אליו הוא שייך.</p>
+              <span class="chip full">מומש במלואו</span>
+            </div>
+            <div class="impl">לוח בקרה מציג שם, תפקיד וסניף; כפתורי "ניהול חשבונות" ו"לוגים" מוצגים רק למנהל משמרת.
+              <div class="files">client.DashboardPanel</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="req-group">
+          <div class="gh"><span class="num">§5</span><h3>ניהול מלאי + רכישה/מכירה</h3></div>
+          <div class="req-card">
+            <div class="top">
+              <p class="spec">ממשק שמנהל את מלאי הסניף, מציג מה קיים, ומאפשר קניה ומכירה.</p>
+              <span class="chip full">מומש במלואו</span>
+            </div>
+            <div class="impl">טבלת מלאי חי (נשלף מהשרת בכל פתיחה, מתרענן אחרי כל רכישה) + טופס רכישה. ה-<code>Inventory</code> של כל סניף הוא אובייקט משותף יחיד — רכישה של עובד אחד באמת משפיעה על מה שכל עובד אחר באותו סניף רואה.
+              <div class="files">client.PurchasePanel · server.SaleService · server.ProductCatalog</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="req-group">
+          <div class="gh"><span class="num">§6</span><h3>ניהול לקוחות הרשת</h3></div>
+          <div class="req-card">
+            <div class="top">
+              <p class="spec">רשימת לקוחות המתעדכנת עבור כל הסניפים; שם מלא, ת.ז, טלפון, סוג לקוח.</p>
+              <span class="chip full">מומש במלואו</span>
+            </div>
+            <div class="impl">מרשם לקוחות <b>רשתי אחד</b> (לא לפי סניף!) שמתעדכן אוטומטית בכל רכישה, מכל סניף.
+              <div class="files">server.CustomerDirectory · client.CustomersPanel</div>
+            </div>
+          </div>
+          <div class="req-card">
+            <div class="top">
+              <p class="spec"><b>מחלקה נפרדת לכל סוג לקוח</b>, כל אחת עם מבצע ומסלול רכישה משלה; פעולת הרכישה מיישמת את הלוגיקה הספציפית (פולימורפיזם).</p>
+              <span class="chip full">מומש במלואו — הליבה של הפרויקט</span>
+            </div>
+            <div class="impl"><code>Customer</code> מופשטת עם מתודה מופשטת <code>calculateDiscount</code>; שלוש תת-מחלקות (0%/5%/10% הנחה). <code>purchase()</code> נכתבת פעם אחת ב-superclass וקוראת פולימורפית לתת-המחלקה הנכונה — וזה רץ בזרימת מערכת אמיתית דרך SaleService, לא רק ביוניט-טסט.
+              <div class="files">model.Customer · model.NewCustomer · model.ReturningCustomer · model.VipCustomer</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="req-group">
+          <div class="gh"><span class="num">§7</span><h3>ניהול דוחות</h3></div>
+          <div class="req-card">
+            <div class="top">
+              <p class="spec">הצגת כמות מכירות לפי סניף; דוח לפי מוצר/ים או קטגוריה.</p>
+              <span class="chip full">מומש במלואו</span>
+            </div>
+            <div class="impl">מסך בחירת קיבוץ (סניף / מוצר / קטגוריה) + תיבת "רק היום" לדוח יומי. דוח לפי <b>סניף</b> מוגבל למנהל משמרת בלבד — מימוש לרמז המפורש "קצת פרטיות לעובדים לא תזיק".
+              <div class="files">client.ReportsPanel · reports.ReportGenerator · server.GetSalesReportRequest</div>
+            </div>
+          </div>
+          <div class="req-card">
+            <div class="top">
+              <p class="spec">ייצוא ל-JSON (לימוד עצמי).</p>
+              <span class="chip full">מומש במלואו</span>
+            </div>
+            <div class="impl">Gson, עם בדיקה שקוראת את הקובץ שנוצר בחזרה ומוודאת שהוא מפורש נכון.
+              <div class="files">reports.JsonReportExporter</div>
+            </div>
+          </div>
+          <div class="req-card">
+            <div class="top">
+              <p class="spec">הצגת הדוחות במסמך Word.</p>
+              <span class="chip full">מומש במלואו — קובץ .docx אמיתי</span>
+            </div>
+            <div class="impl">Apache POI בונה מסמך אמיתי (כותרת + טבלה), נבדק על-ידי קריאה חוזרת עם POI — לא רק "הקובץ נוצר", אלא שהוא באמת קריא.
+              <div class="files">reports.WordReportExporter</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="req-group">
+          <div class="gh"><span class="num">§8</span><h3>ניהול עובדי הרשת</h3></div>
+          <div class="req-card">
+            <div class="top">
+              <p class="spec">שם מלא, ת.ז, טלפון, מספר חשבון, שיוך לסניף, מספר עובד, תפקיד.</p>
+              <span class="chip full">מומש במלואו — כל שבעת השדות</span>
+            </div>
+            <div class="impl">מסך המציג את כל עובדי הרשת (לא רק הסניף שלי) עם כל השדות שהמפרט דרש.
+              <div class="files">model.Employee · client.EmployeesPanel · server.EmployeeDirectory</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="req-group">
+          <div class="gh"><span class="num">§9</span><h3>ניהול צ'אטים</h3></div>
+          <div class="req-card">
+            <div class="top">
+              <p class="spec">עובד יכול לפתוח צ'אט מול עובד בסניף אחר; מנהל משמרת יכול להצטרף לצ'אט קיים.</p>
+              <span class="chip full">מומש במלואו</span>
+            </div>
+            <div class="impl">התאמה לפי סניף שונה בלבד; הצטרפות מוגבלת ל-Role.MANAGER, עם שידור הודעת "הצטרף" לשאר המשתתפים.
+              <div class="files">chat.ChatDispatcher.requestChat / joinChat</div>
+            </div>
+          </div>
+          <div class="req-card">
+            <div class="top">
+              <p class="spec">ניהול תור לחיפוש עובד פנוי, באמצעות Design Pattern מהלימוד העצמי.</p>
+              <span class="chip full">מומש במלואו — Singleton</span>
+            </div>
+            <div class="impl">מופע יחיד וגלובלי (<code>getInstance()</code>) מנהל תור המתנה ומפת שיחות, עם מתודות <code>synchronized</code> להגנה מפני מספר Threads בו-זמנית.
+              <div class="files">chat.ChatDispatcher</div>
+            </div>
+          </div>
+          <div class="req-card">
+            <div class="top">
+              <p class="spec">אם אין עובד פנוי — שמירת הבקשה בצד שרת; כשמשתמש מתפנה — הקפצת התראה וחזרה לשיחה עם מי שביקש.</p>
+              <span class="chip full">מומש במלואו</span>
+            </div>
+            <div class="impl">אותו תור-המתנה משמש גם כ"מי מחפש שיחה" וגם כ"בקשות אופליין" — כשמישהו חדש מבקש שיחה ומוצא מישהו שכבר חיכה, שני הצדדים מקבלים <code>ChatStarted</code>, כולל <b>Push לא-מבוקש</b> לצד שחיכה.
+              <div class="files">chat.ChatDispatcher.requestChat</div>
+            </div>
+          </div>
+          <div class="req-card">
+            <div class="top">
+              <p class="spec">המערכת לא תאפשר שיחה של אותו משתמש ממספר מחשבים בו-זמנית.</p>
+              <span class="chip full">מומש במלואו</span>
+            </div>
+            <div class="impl">נובע ישירות ממניעת ההתחברות הכפולה (§2) — משתמש לא יכול להיות מחובר פעמיים, ולכן לא יכול להיות בשתי שיחות ממחשבים שונים.
+              <div class="files">server.AuthService.activeSessions</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="req-group">
+          <div class="gh"><span class="num">§10</span><h3>ניהול לוגים</h3></div>
+          <div class="req-card">
+            <div class="top">
+              <p class="spec">רישום עובדים, לקוחות, קניות/מכירות, פרטי שיחות עם אופציה לשמור תוכן.</p>
+              <span class="chip full">מומש במלואו</span>
+            </div>
+            <div class="impl">Singleton שני (אותה תבנית בדיוק כמו ChatDispatcher) כותב שורות מסווגות לקובץ. "אופציה לשמירת תוכן שיחה" ממומשת כקבוע בוליאני יחיד.
+              <div class="files">logging.SystemLogger · chat.ChatDispatcher.LOG_CHAT_CONTENT</div>
+            </div>
+          </div>
+          <div class="req-card">
+            <div class="top">
+              <p class="spec">ממשק לניהול הלוגים (לא רק קובץ).</p>
+              <span class="chip full">מומש במלואו</span>
+            </div>
+            <div class="impl">מסך צפייה בלוג בתוך האפליקציה, מוגבל למנהל משמרת.
+              <div class="files">client.LogsPanel</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="req-group">
+          <div class="gh"><span class="num">כללי</span><h3>איכות קוד ובדיקות</h3></div>
+          <div class="req-card">
+            <div class="top">
+              <p class="spec">מחלקות וממשקים כתובים בצורה נקייה, מתועדת, ומיישמים OOP; קבצי בדיקה לפני בדיקה חיצונית.</p>
+              <span class="chip full">מומש במלואו</span>
+            </div>
+            <div class="impl">83 בדיקות JUnit, TDD לאורך כל הפרויקט (הבדיקה נכתבת ונכשלת לפני שהקוד נכתב). פירוט מלא בסעיף <a href="#testing">בדיקות</a>.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="timeline">
+        <span class="eyebrow">04 — Build Timeline</span>
+        <h2>איך זה נבנה, שלב אחר שלב</h2>
+        <p class="lede">חמישה שלבים לפי תוכנית העבודה המקורית, ואז סבב סגירת פערים מול המפרט המלא.</p>
+
+        <div style="margin-top: 28px;">
+          <div class="stage">
+            <div class="dot">01</div>
+            <div class="body">
+              <h4>Entities — מודלים</h4>
+              <div class="tag">model package</div>
+              <p>עובד, סניף, מוצר, מלאי, והיררכיית הלקוחות. כאן נבנתה תשתית הפולימורפיזם שמומשה בפועל רק בשלב 5.</p>
+            </div>
+          </div>
+          <div class="stage">
+            <div class="dot">02</div>
+            <div class="body">
+              <h4>Server — שרת ואימות</h4>
+              <div class="tag">server package · Sockets · Threads</div>
+              <p>שרת Socket, Thread לכל לקוח, אימות משתמשים, מניעת התחברות כפולה.</p>
+            </div>
+          </div>
+          <div class="stage">
+            <div class="dot">03</div>
+            <div class="body">
+              <h4>Client GUI</h4>
+              <div class="tag">client package · Swing</div>
+              <p>מסכי התחברות, אדמין, ולוח בקרה מותאם תפקיד/סניף, מחוברים לשרת האמיתי.</p>
+            </div>
+          </div>
+          <div class="stage">
+            <div class="dot">04</div>
+            <div class="body">
+              <h4>Chat &amp; Concurrency</h4>
+              <div class="tag">chat package · Singleton</div>
+              <p>תור עובדים פנויים, הצטרפות מנהל, התראות אופליין — מוכח ב-Socket אמיתי, ללא מסך (תשתית Push א-סינכרונית שלא נדרשה עדיין).</p>
+            </div>
+          </div>
+          <div class="stage">
+            <div class="dot">05</div>
+            <div class="body">
+              <h4>Reports &amp; I/O</h4>
+              <div class="tag">reports + logging packages</div>
+              <p>כאן נסגר פער אמיתי: עד לשלב הזה לא הייתה פעולת רכישה בכלל. נוספו SaleService (מפעיל את הפולימורפיזם משלב 1), SystemLogger, ודוחות עם ייצוא JSON/Word אמיתי.</p>
+            </div>
+          </div>
+          <div class="stage">
+            <div class="dot">06+</div>
+            <div class="body">
+              <h4>סבב סגירת פערים</h4>
+              <div class="tag">7 Pull Requests נוספים</div>
+              <p>סקירה מקיפה מול נוסח הדרישות הרשמי המלא חשפה 7 פערים אמיתיים — מסך רכישה, שדות עובד חסרים, מרשם לקוחות רשתי, מסכי ניהול עובדים/דוחות/לוגים, ותיקון באג ניווט אמיתי (אף מסך לא איפשר חזרה ללוח הבקרה). כולם נסגרו ונבדקו.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="patterns">
+        <span class="eyebrow">05 — Design Patterns</span>
+        <h2>תבנית עיצוב אחת, שני שימושים</h2>
+        <p class="lede">התשובה הנכונה לשאלה "כמה תבניות עיצוב יש בפרויקט" היא <b>אחת</b> — Singleton — שמופיעה פעמיים כי שתי הבעיות זהות במבנה שלהן: "צריך בדיוק מופע אחד, נגיש מכל מקום".</p>
+
+        <div class="pattern-grid">
+          <div class="pattern-card">
+            <span class="eyebrow">chat.ChatDispatcher</span>
+            <h4>ניהול תור הצ'אט (נדרש במפורש, §9)</h4>
+            <p>מופע יחיד מחזיק את תור ההמתנה ומפת השיחות הפעילות של כל השרת. כל המתודות <code>synchronized</code> — נעילה אחת פשוטה, לא נעילות עדינות מרובות.</p>
+            <pre>private <span class="k">static final</span> ChatDispatcher INSTANCE = <span class="k">new</span> ChatDispatcher();
+<span class="k">private</span> ChatDispatcher() {}
+<span class="k">public static</span> ChatDispatcher getInstance() { <span class="k">return</span> INSTANCE; }</pre>
+          </div>
+          <div class="pattern-card">
+            <span class="eyebrow">logging.SystemLogger</span>
+            <h4>לוג המערכת — שימוש חוזר טבעי, לא תבנית שנייה</h4>
+            <p>לוגר הוא הדוגמה הכי קלאסית ל-Singleton בתעשייה. חיווט לכל שירות קיים דרש שורה אחת — <code>getInstance().log(...)</code> — בלי לשנות אף קונסטרוקטור.</p>
+            <pre>AuthService.login(...) {
+  <span class="k">...</span>
+  SystemLogger.getInstance().log(<span class="k">"EMPLOYEE"</span>, <span class="k">"Login: "</span> + username);
+}</pre>
+          </div>
+        </div>
+      </section>
+
+      <section id="testing">
+        <span class="eyebrow">06 — Testing</span>
+        <h2>83 בדיקות, TDD מתחילה ועד סוף</h2>
+        <p class="lede">כל תכונה נכתבה כך: קודם בדיקה שנכשלת, אחר כך המימוש המינימלי שמעביר אותה. בדיקות אינטגרציה משתמשות ב-Socket אמיתי, לא ב-Mock.</p>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>חבילה</th><th>מוקד הבדיקה</th><th class="num">בדיקות</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>model</code></td><td>ישויות, פולימורפיזם ההנחה, מלאי</td><td class="num">13</td></tr>
+              <tr><td><code>server</code> (אימות/חשבונות)</td><td>AuthService, AccountService, PasswordPolicy, EmployeeDirectory</td><td class="num">21</td></tr>
+              <tr><td><code>server</code> (רכישה/מלאי/לקוחות)</td><td>SaleService, ProductCatalog, CustomerDirectory + אינטגרציית Socket</td><td class="num">24</td></tr>
+              <tr><td><code>chat</code></td><td>ChatDispatcher (לוגיקה טהורה) + אינטגרציית Socket מלאה</td><td class="num">12</td></tr>
+              <tr><td><code>logging</code></td><td>כתיבה/קריאה של קובץ הלוג</td><td class="num">4</td></tr>
+              <tr><td><code>reports</code></td><td>קיבוץ, ייצוא JSON, ייצוא Word (נקרא בחזרה ומאומת)</td><td class="num">6</td></tr>
+              <tr><td><code>client</code></td><td>ServerConnection מול שרת אמיתי</td><td class="num">2</td></tr>
+              <tr><td><b>סה"כ</b></td><td></td><td class="num"><b>83</b></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="limitations">
+        <span class="eyebrow">07 — Known Limitations</span>
+        <h2>מגבלות ידועות, מתועדות בכוונה</h2>
+        <p class="lede">כל אחת מהן הייתה החלטת עיצוב מודעת — לא דבר שנשכח. שווה לדעת להסביר <em>למה</em>, לא רק <em>שכן</em>.</p>
+
+        <div class="limit-list">
+          <div class="limit-item">
+            <div class="bar"></div>
+            <div class="content">
+              <h4>אין מסך צ'אט ב-GUI</h4>
+              <p>הצ'אט מוכח במלואו ב-<code>ChatIntegrationTest</code> מול Socket אמיתי. מסך צ'אט אמיתי דורש Thread קורא ברקע בצד לקוח שיודע להבדיל בין "תשובה לבקשה שלי" לבין "הודעה שקפצה אליי" — תשתית שלא נבנתה כי לא נדרשה עדיין הודעת Push בשום מסך אחר.</p>
+            </div>
+          </div>
+          <div class="limit-item">
+            <div class="bar"></div>
+            <div class="content">
+              <h4>נתונים בזיכרון בלבד</h4>
+              <p>עובדים, לקוחות, מכירות ושיחות פעילות נשמרים ב-RAM, לא בקובץ/DB. אין persistence בין הרצות שרת. זו נקודת קצה מוכרת של הפרויקט מאז שלב 2.</p>
+            </div>
+          </div>
+          <div class="limit-item">
+            <div class="bar"></div>
+            <div class="content">
+              <h4>סיסמאות ללא הצפנה</h4>
+              <p>נשמרות ונבדקות כמחרוזת רגילה. החלטה מודעת לרמת קורס — לא תקלת אבטחה שנשכחה.</p>
+            </div>
+          </div>
+          <div class="limit-item">
+            <div class="bar"></div>
+            <div class="content">
+              <h4>מדיניות סיסמאות קבועה בקוד</h4>
+              <p>6 תווים + ספרה, לא ניתנת לעריכה דרך מסך האדמין. המפרט לא נתן ערכים מדויקים, בדיוק כמו אחוזי ההנחה בשלב 1.</p>
+            </div>
+          </div>
+          <div class="limit-item">
+            <div class="bar"></div>
+            <div class="content">
+              <h4>רק אירועים מוצלחים נרשמים ללוג</h4>
+              <p>ניסיונות כושלים (סיסמה שגויה, מלאי חסר) לא נרשמים — שמירה על היקף מינימלי, לא דרישת אבטחה שהוזנחה.</p>
+            </div>
+          </div>
+          <div class="limit-item">
+            <div class="bar"></div>
+            <div class="content">
+              <h4>לא נבדק ויזואלית בסביבה זו</h4>
+              <p>כל תרחיש נבדק אוטומטית (JUnit) ובאמצעות סקריפטים המדמים בדיוק את פרוטוקול הרשת שה-GUI משתמש בו, כולל הרצה ידנית של השרת והלקוח מקצה לקצה. לא בוצעה לחיצה בפועל על כל כפתור בסביבה גרפית — מומלץ לעבור על כל המסכים ידנית לפני ההגנה.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="defense">
+        <span class="eyebrow">08 — Defense Prep</span>
+        <h2>נקודות שכדאי לדעת להסביר</h2>
+        <p class="lede">השאלות הכי סבירות, ותשובות קצרות שמראות שהבנתם את הבחירות, לא רק העתקתם קוד.</p>
+
+        <div class="tip-grid">
+          <div class="tip-card">
+            <div class="q">למה Singleton ולא Observer/Strategy לניהול התור?</div>
+            <div class="a">כי יש בפועל מופע אחד רצוי של מנהל-התור לכל השרת — זו בדיוק הבעיה ש-Singleton נועד לפתור, לא בחירה שרירותית.</div>
+          </div>
+          <div class="tip-card">
+            <div class="q">איך התור משרת גם "חיפוש עובד פנוי" וגם "בקשות אופליין"?</div>
+            <div class="a">זה אותו מבנה נתונים בדיוק: מי שלא נמצא לו שותף — נכנס לתור בעצמו. הבקשה "הממתינה" והעובד "המחפש" הם אותו מצב.</div>
+          </div>
+          <div class="tip-card">
+            <div class="q">איך יודעים שרק מנהל יכול ליצור חשבון/לראות דוח סניפים/לוגים?</div>
+            <div class="a">בדיקת <code>Role</code> בצד השרת (לא רק הסתרת כפתור בלקוח) — הזהות של המשתמש היא תכונה של החיבור עצמו (ה-Socket), לא טוקן שנשלח מחדש בכל בקשה.</div>
+          </div>
+          <div class="tip-card">
+            <div class="q">איפה בדיוק רץ הפולימורפיזם של הלקוחות?</div>
+            <div class="a"><code>Customer.purchase()</code> קוראת ל-<code>calculateDiscount()</code> המופשטת; <code>SaleService</code> בונה את תת-המחלקה הנכונה לפי <code>CustomerType</code> שנשלח מהלקוח, ואז קוראת ל-<code>purchase()</code> בלי לדעת איזו תת-מחלקה זו בפועל.</div>
+          </div>
+          <div class="tip-card">
+            <div class="q">למה אין בדיקות JUnit למסכי ה-Swing?</div>
+            <div class="a">בדיקת רכיבי GUI דורשת תשתית נוספת שהיא מעבר לנדרש בקורס. כל הלוגיקה שהמסכים קוראים לה כבר מכוסה ב-JUnit; המסכים עצמם הם "צינור" דק בלבד.</div>
+          </div>
+          <div class="tip-card">
+            <div class="q">איך מוכיחים שמסמך ה-Word אמיתי, לא רק "קובץ נוצר"?</div>
+            <div class="a"><code>WordReportExporterTest</code> קורא את ה-<code>.docx</code> בחזרה עם Apache POI ובודק שהכותרת והנתונים בטבלה נכונים — לא רק שגודל הקובץ אינו אפס.</div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <footer>
+    מסמך זה נוצר כחלק מהפרויקט ומתעדכן יחד איתו · docs/project-summary.html
+  </footer>
+
+</div>
