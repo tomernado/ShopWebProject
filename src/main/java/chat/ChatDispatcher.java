@@ -2,8 +2,10 @@ package chat;
 
 import model.Role;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 
@@ -56,6 +58,18 @@ public class ChatDispatcher {
             return;
         }
         session.broadcast(new ChatMessage(sessionId, sender.getEmployee(), text), sender);
+    }
+
+    public synchronized List<ChatSummary> listActiveChats() {
+        List<ChatSummary> summaries = new ArrayList<>();
+        for (ChatSession session : sessionsById.values()) {
+            List<String> names = new ArrayList<>();
+            for (ChatParticipant participant : session.getParticipants()) {
+                names.add(participant.getEmployee().getFullName());
+            }
+            summaries.add(new ChatSummary(session.getSessionId(), names));
+        }
+        return summaries;
     }
 
     private ChatParticipant findWaitingPartnerFromDifferentBranch(ChatParticipant requester) {

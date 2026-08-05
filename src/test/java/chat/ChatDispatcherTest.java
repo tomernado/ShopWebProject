@@ -134,4 +134,17 @@ class ChatDispatcherTest {
 
         assertEquals(0, second.getReceived().size());
     }
+
+    @Test
+    void listActiveChatsReturnsCurrentSessions() {
+        FakeChatParticipant first = participant("yossi", Role.CASHIER, branch1);
+        FakeChatParticipant second = participant("noa", Role.SELLER, branch2);
+        dispatcher.requestChat(first);
+        dispatcher.requestChat(second);
+
+        var chats = dispatcher.listActiveChats();
+
+        assertEquals(1, chats.size());
+        assertEquals(2, chats.get(0).getParticipantNames().size());
+    }
 }
