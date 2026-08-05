@@ -1,5 +1,7 @@
 package server;
 
+import model.Employee;
+
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -9,15 +11,17 @@ import java.net.Socket;
 public class ClientHandler implements Runnable {
     private final Socket socket;
     private final AuthService authService;
+    private final AccountService accountService;
 
-    public ClientHandler(Socket socket, AuthService authService) {
+    public ClientHandler(Socket socket, AuthService authService, AccountService accountService) {
         this.socket = socket;
         this.authService = authService;
+        this.accountService = accountService;
     }
 
     @Override
     public void run() {
-        String loggedInUsername = null;
+        Employee loggedInEmployee = null;
         try (
                 // create the output stream before the input stream on both ends —
                 // ObjectInputStream's constructor blocks waiting for the other side's
@@ -31,26 +35,32 @@ public class ClientHandler implements Runnable {
             out.flush();
 
             if (response.isSuccess()) {
-                loggedInUsername = request.getUsername();
-                waitForDisconnect(in);
+                loggedInEmployee = response.getEmployee();
+                handleAuthenticatedSession(in, out, loggedInEmployee);
             }
         } catch (EOFException e) {
             // client disconnected — normal end of the read loop
         } catch (IOException | ClassNotFoundException e) {
             System.err.println("Client handler error: " + e.getMessage());
         } finally {
-            if (loggedInUsername != null) {
-                authService.logout(loggedInUsername);
+            if (loggedInEmployee != null) {
+                authService.logout(loggedInEmployee.getUsername());
             }
             closeSocket();
         }
     }
 
-    private void waitForDisconnect(ObjectInputStream in) throws IOException, ClassNotFoundException {
-        // Stage 2 only authenticates; later stages will read further message
-        // types here on the same connection (e.g. chat in Stage 4).
+    private void handleAuthenticatedSession(ObjectInputStream in, ObjectOutputStream out, Employee employee)
+            throws IOException, ClassNotFoundException {
+        // Stage 3 adds account-creation requests here; Stage 4 will add chat
+        // message types on this same authenticated connection.
         while (true) {
-            in.readObject();
+            Object message = in.readObject();
+            if (message instanceof CreateAccountRequest request) {
+                CreateAccountResponse response = accountService.createAccount(employee.getRole(), request);
+                out.writeObject(response);
+                out.flush();
+            }
         }
     }
 

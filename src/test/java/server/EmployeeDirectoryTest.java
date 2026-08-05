@@ -1,5 +1,7 @@
 package server;
 
+import model.Branch;
+import model.Employee;
 import model.Role;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
@@ -19,5 +21,33 @@ class EmployeeDirectoryTest {
     @Test
     void unknownUsernameReturnsNull() {
         assertNull(directory.findByUsername("nobody"));
+    }
+
+    @Test
+    void getBranchesReturnsBothSeededBranches() {
+        assertEquals(2, directory.getBranches().size());
+    }
+
+    @Test
+    void findBranchByIdReturnsMatchingBranch() {
+        Branch branch = directory.findBranchById("B1");
+
+        assertNotNull(branch);
+        assertEquals("Downtown", branch.getName());
+    }
+
+    @Test
+    void findBranchByIdReturnsNullForUnknownId() {
+        assertNull(directory.findBranchById("nope"));
+    }
+
+    @Test
+    void addEmployeeMakesItFindableByUsername() {
+        Branch branch = directory.findBranchById("B1");
+        Employee newEmployee = new Employee("100000009", "Roi Biton", "roi.b", "abcdef1", Role.SELLER, branch);
+
+        directory.addEmployee(newEmployee);
+
+        assertEquals(newEmployee, directory.findByUsername("roi.b"));
     }
 }
