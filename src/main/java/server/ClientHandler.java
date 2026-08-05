@@ -1,5 +1,12 @@
 package server;
 
+import chat.ActiveChatsResponse;
+import chat.ChatDispatcher;
+import chat.ChatMessage;
+import chat.ChatParticipant;
+import chat.ChatRequest;
+import chat.JoinChatRequest;
+import chat.ListActiveChatsRequest;
 import model.Employee;
 
 import java.io.EOFException;
@@ -8,10 +15,13 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
-public class ClientHandler implements Runnable {
+public class ClientHandler implements Runnable, ChatParticipant {
     private final Socket socket;
     private final AuthService authService;
     private final AccountService accountService;
+    private ObjectOutputStream out;
+    private ObjectInputStream in;
+    private Employee loggedInEmployee;
 
     public ClientHandler(Socket socket, AuthService authService, AccountService accountService) {
         this.socket = socket;
@@ -20,23 +30,34 @@ public class ClientHandler implements Runnable {
     }
 
     @Override
+    public Employee getEmployee() {
+        return loggedInEmployee;
+    }
+
+    @Override
+    public synchronized void send(Object message) {
+        try {
+            out.writeObject(message);
+            out.flush();
+        } catch (IOException e) {
+            String username = loggedInEmployee != null ? loggedInEmployee.getUsername() : "unknown";
+            System.err.println("Failed to push message to " + username + ": " + e.getMessage());
+        }
+    }
+
+    @Override
     public void run() {
-        Employee loggedInEmployee = null;
-        try (
-                // create the output stream before the input stream on both ends —
-                // ObjectInputStream's constructor blocks waiting for the other side's
-                // stream header, so mismatched order deadlocks the connection.
-                ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
-                ObjectInputStream in = new ObjectInputStream(socket.getInputStream())
-        ) {
+        try {
+            out = new ObjectOutputStream(socket.getOutputStream());
+            in = new ObjectInputStream(socket.getInputStream());
+
             LoginRequest request = (LoginRequest) in.readObject();
             LoginResponse response = authService.login(request.getUsername(), request.getPassword());
-            out.writeObject(response);
-            out.flush();
+            send(response);
 
             if (response.isSuccess()) {
                 loggedInEmployee = response.getEmployee();
-                handleAuthenticatedSession(in, out, loggedInEmployee);
+                handleAuthenticatedSession();
             }
         } catch (EOFException e) {
             // client disconnected — normal end of the read loop
@@ -50,16 +71,19 @@ public class ClientHandler implements Runnable {
         }
     }
 
-    private void handleAuthenticatedSession(ObjectInputStream in, ObjectOutputStream out, Employee employee)
-            throws IOException, ClassNotFoundException {
-        // Stage 3 adds account-creation requests here; Stage 4 will add chat
-        // message types on this same authenticated connection.
+    private void handleAuthenticatedSession() throws IOException, ClassNotFoundException {
         while (true) {
             Object message = in.readObject();
             if (message instanceof CreateAccountRequest request) {
-                CreateAccountResponse response = accountService.createAccount(employee.getRole(), request);
-                out.writeObject(response);
-                out.flush();
+                send(accountService.createAccount(loggedInEmployee.getRole(), request));
+            } else if (message instanceof ChatRequest) {
+                send(ChatDispatcher.getInstance().requestChat(this));
+            } else if (message instanceof JoinChatRequest request) {
+                send(ChatDispatcher.getInstance().joinChat(request.getSessionId(), this));
+            } else if (message instanceof ChatMessage chatMessage) {
+                ChatDispatcher.getInstance().sendMessage(chatMessage.getSessionId(), this, chatMessage.getText());
+            } else if (message instanceof ListActiveChatsRequest) {
+                send(new ActiveChatsResponse(ChatDispatcher.getInstance().listActiveChats()));
             }
         }
     }
