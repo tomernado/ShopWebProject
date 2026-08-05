@@ -117,4 +117,21 @@ class ChatDispatcherTest {
 
         assertFalse(response.isSuccess());
     }
+
+    @Test
+    void messageIsBroadcastToOtherParticipantsButNotTheSender() {
+        FakeChatParticipant first = participant("yossi", Role.CASHIER, branch1);
+        FakeChatParticipant second = participant("noa", Role.SELLER, branch2);
+        dispatcher.requestChat(first);
+        ChatStarted started = (ChatStarted) dispatcher.requestChat(second);
+
+        dispatcher.sendMessage(started.getSessionId(), second, "שלום");
+
+        assertEquals(2, first.getReceived().size());
+        ChatMessage message = (ChatMessage) first.getReceived().get(1);
+        assertEquals("שלום", message.getText());
+        assertEquals(second.getEmployee(), message.getSender());
+
+        assertEquals(0, second.getReceived().size());
+    }
 }

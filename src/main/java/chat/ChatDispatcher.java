@@ -50,6 +50,14 @@ public class ChatDispatcher {
         return JoinChatResponse.success();
     }
 
+    public synchronized void sendMessage(String sessionId, ChatParticipant sender, String text) {
+        ChatSession session = sessionsById.get(sessionId);
+        if (session == null) {
+            return;
+        }
+        session.broadcast(new ChatMessage(sessionId, sender.getEmployee(), text), sender);
+    }
+
     private ChatParticipant findWaitingPartnerFromDifferentBranch(ChatParticipant requester) {
         String requesterBranchId = requester.getEmployee().getBranch().getBranchId();
         for (ChatParticipant candidate : waitingQueue) {
