@@ -44,10 +44,16 @@ class EmployeeDirectoryTest {
     @Test
     void addEmployeeMakesItFindableByUsername() {
         Branch branch = directory.findBranchById("B1");
-        Employee newEmployee = new Employee("100000009", "Roi Biton", "roi.b", "abcdef1", Role.SELLER, branch);
+        Employee newEmployee = new Employee("100000009", "Roi Biton", "050-9999999", "AC-9009", "E-009",
+                "roi.b", "abcdef1", Role.SELLER, branch);
 
         directory.addEmployee(newEmployee);
 
         assertEquals(newEmployee, directory.findByUsername("roi.b"));
+    }
+
+    @Test
+    void getAllEmployeesReturnsAllThreeSeededEmployees() {
+        assertEquals(3, directory.getAllEmployees().size());
     }
 }

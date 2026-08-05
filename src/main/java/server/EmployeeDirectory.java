@@ -19,9 +19,12 @@ public class EmployeeDirectory {
         branchesById.put(downtown.getBranchId(), downtown);
         branchesById.put(uptown.getBranchId(), uptown);
 
-        addEmployee(new Employee("100000001", "Dana Levi", "dana.l", "secret123", Role.MANAGER, downtown));
-        addEmployee(new Employee("100000002", "Yossi Cohen", "yossi.c", "pass456", Role.CASHIER, downtown));
-        addEmployee(new Employee("100000003", "Noa Biton", "noa.b", "qwerty789", Role.SELLER, uptown));
+        addEmployee(new Employee("100000001", "Dana Levi", "050-1000001", "AC-1001", "E-001",
+                "dana.l", "secret123", Role.MANAGER, downtown));
+        addEmployee(new Employee("100000002", "Yossi Cohen", "050-1000002", "AC-1002", "E-002",
+                "yossi.c", "pass456", Role.CASHIER, downtown));
+        addEmployee(new Employee("100000003", "Noa Biton", "050-1000003", "AC-1003", "E-003",
+                "noa.b", "qwerty789", Role.SELLER, uptown));
     }
 
     public void addEmployee(Employee employee) {
@@ -38,5 +41,9 @@ public class EmployeeDirectory {
 
     public Branch findBranchById(String branchId) {
         return branchesById.get(branchId);
+    }
+
+    public List<Employee> getAllEmployees() {
+        return new ArrayList<>(employeesByUsername.values());
     }
 }

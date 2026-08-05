@@ -20,7 +20,8 @@ class ChatDispatcherTest {
     }
 
     private FakeChatParticipant participant(String username, Role role, Branch branch) {
-        Employee employee = new Employee("1", username + "-full", username, "pw123456", role, branch);
+        Employee employee = new Employee("1", username + "-full", "050-0000000", "AC-0000", "E-000",
+                username, "pw123456", role, branch);
         return new FakeChatParticipant(employee);
     }
 

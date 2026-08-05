@@ -13,7 +13,8 @@ class SaleServiceTest {
     private final ProductCatalog productCatalog = new ProductCatalog(employeeDirectory);
     private final SaleService saleService = new SaleService(productCatalog);
     private final Branch branch = employeeDirectory.findBranchById("B1");
-    private final Employee cashier = new Employee("1", "Yossi Cohen", "yossi.c", "pw", Role.CASHIER, branch);
+    private final Employee cashier = new Employee("1", "Yossi Cohen", "050-1000002", "AC-1002", "E-002",
+            "yossi.c", "pw", Role.CASHIER, branch);
 
     @Test
     void newCustomerPaysFullPriceAndStockIsReduced() {

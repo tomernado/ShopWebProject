@@ -140,7 +140,8 @@ class ChatIntegrationTest {
             login(managerOut, managerIn, "dana.l", "secret123");
 
             managerOut.writeObject(new CreateAccountRequest(
-                    "100000010", "Moshe Katz", "moshe.k", "pw123456", Role.CASHIER, "B1"));
+                    "100000010", "Moshe Katz", "050-1000010", "AC-1010", "E-010",
+                    "moshe.k", "pw123456", Role.CASHIER, "B1"));
             managerOut.flush();
             CreateAccountResponse createResponse = (CreateAccountResponse) managerIn.readObject();
             assertTrue(createResponse.isSuccess());

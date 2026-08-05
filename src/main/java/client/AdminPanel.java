@@ -14,6 +14,9 @@ public class AdminPanel extends JPanel {
 
     private final JTextField idNumberField = new JTextField(15);
     private final JTextField fullNameField = new JTextField(15);
+    private final JTextField phoneField = new JTextField(15);
+    private final JTextField accountNumberField = new JTextField(15);
+    private final JTextField employeeNumberField = new JTextField(15);
     private final JTextField usernameField = new JTextField(15);
     private final JPasswordField passwordField = new JPasswordField(15);
     private final JComboBox<Role> roleBox = new JComboBox<>(Role.values());
@@ -30,20 +33,23 @@ public class AdminPanel extends JPanel {
 
         addRow(c, 0, "ת\"ז:", idNumberField);
         addRow(c, 1, "שם מלא:", fullNameField);
-        addRow(c, 2, "שם משתמש:", usernameField);
-        addRow(c, 3, "סיסמה:", passwordField);
-        addRow(c, 4, "תפקיד:", roleBox);
-        addRow(c, 5, "סניף:", branchBox);
+        addRow(c, 2, "טלפון:", phoneField);
+        addRow(c, 3, "מספר חשבון:", accountNumberField);
+        addRow(c, 4, "מספר עובד:", employeeNumberField);
+        addRow(c, 5, "שם משתמש:", usernameField);
+        addRow(c, 6, "סיסמה:", passwordField);
+        addRow(c, 7, "תפקיד:", roleBox);
+        addRow(c, 8, "סניף:", branchBox);
 
         JButton createButton = new JButton("צור חשבון");
         createButton.addActionListener(e -> attemptCreateAccount());
         c.gridx = 0;
-        c.gridy = 6;
+        c.gridy = 9;
         c.gridwidth = 2;
         add(createButton, c);
 
         statusLabel.setForeground(Color.RED);
-        c.gridy = 7;
+        c.gridy = 10;
         add(statusLabel, c);
     }
 
@@ -62,6 +68,9 @@ public class AdminPanel extends JPanel {
             CreateAccountRequest request = new CreateAccountRequest(
                     idNumberField.getText(),
                     fullNameField.getText(),
+                    phoneField.getText(),
+                    accountNumberField.getText(),
+                    employeeNumberField.getText(),
                     usernameField.getText(),
                     new String(passwordField.getPassword()),
                     (Role) roleBox.getSelectedItem(),

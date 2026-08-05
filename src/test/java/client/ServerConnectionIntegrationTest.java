@@ -36,7 +36,8 @@ class ServerConnectionIntegrationTest {
             assertTrue(managerLogin.isSuccess());
 
             CreateAccountResponse createResponse = managerConnection.createAccount(
-                    new CreateAccountRequest("100000009", "Roi Biton", "roi.b", "abcdef1", Role.SELLER, "B1"));
+                    new CreateAccountRequest("100000009", "Roi Biton", "050-9999999", "AC-9009", "E-009",
+                            "roi.b", "abcdef1", Role.SELLER, "B1"));
             assertTrue(createResponse.isSuccess());
         }
 
@@ -57,7 +58,8 @@ class ServerConnectionIntegrationTest {
             assertTrue(cashierLogin.isSuccess());
 
             CreateAccountResponse response = cashierConnection.createAccount(
-                    new CreateAccountRequest("100000009", "Roi Biton", "roi.b", "abcdef1", Role.SELLER, "B1"));
+                    new CreateAccountRequest("100000009", "Roi Biton", "050-9999999", "AC-9009", "E-009",
+                            "roi.b", "abcdef1", Role.SELLER, "B1"));
 
             assertFalse(response.isSuccess());
         }
