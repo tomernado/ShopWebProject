@@ -2,6 +2,8 @@ package client;
 
 import server.CreateAccountRequest;
 import server.CreateAccountResponse;
+import server.GetCustomersRequest;
+import server.GetCustomersResponse;
 import server.GetInventoryRequest;
 import server.GetInventoryResponse;
 import server.LoginRequest;
@@ -51,6 +53,12 @@ public class ServerConnection implements Closeable {
         out.writeObject(new GetInventoryRequest());
         out.flush();
         return (GetInventoryResponse) in.readObject();
+    }
+
+    public GetCustomersResponse getCustomers() throws IOException, ClassNotFoundException {
+        out.writeObject(new GetCustomersRequest());
+        out.flush();
+        return (GetCustomersResponse) in.readObject();
     }
 
     @Override
