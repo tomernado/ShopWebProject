@@ -22,7 +22,10 @@ class ServerIntegrationTest {
 
     @Test
     void clientCanLogInOverARealSocket() throws Exception {
-        server = new Server(TEST_PORT, new AuthService(new EmployeeDirectory()));
+        EmployeeDirectory employeeDirectory = new EmployeeDirectory();
+        AuthService authService = new AuthService(employeeDirectory);
+        AccountService accountService = new AccountService(employeeDirectory, new PasswordPolicy());
+        server = new Server(TEST_PORT, authService, accountService);
         Thread serverThread = new Thread(server::start);
         serverThread.start();
         Thread.sleep(200); // give the accept loop time to start listening
