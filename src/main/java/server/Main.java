@@ -5,7 +5,7 @@ public class Main {
         EmployeeDirectory employeeDirectory = new EmployeeDirectory();
         AuthService authService = new AuthService(employeeDirectory);
         AccountService accountService = new AccountService(employeeDirectory, new PasswordPolicy());
-        SaleService saleService = new SaleService(new ProductCatalog(employeeDirectory));
+        SaleService saleService = new SaleService(new ProductCatalog(employeeDirectory), new CustomerDirectory());
         new Server(5000, authService, accountService, saleService).start();
     }
 }

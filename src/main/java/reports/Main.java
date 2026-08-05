@@ -2,6 +2,7 @@ package reports;
 
 import model.CustomerType;
 import model.Employee;
+import server.CustomerDirectory;
 import server.EmployeeDirectory;
 import server.ProductCatalog;
 import server.RecordSaleRequest;
@@ -13,7 +14,7 @@ public class Main {
     public static void main(String[] args) throws Exception {
         EmployeeDirectory employeeDirectory = new EmployeeDirectory();
         ProductCatalog productCatalog = new ProductCatalog(employeeDirectory);
-        SaleService saleService = new SaleService(productCatalog);
+        SaleService saleService = new SaleService(productCatalog, new CustomerDirectory());
 
         Employee dana = employeeDirectory.findByUsername("dana.l");
         Employee yossi = employeeDirectory.findByUsername("yossi.c");
