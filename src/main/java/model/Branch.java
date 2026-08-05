@@ -1,6 +1,8 @@
 package model;
 
-public class Branch {
+import java.io.Serializable;
+
+public class Branch implements Serializable {
     private final String branchId;
     private final String name;
     private final String address;

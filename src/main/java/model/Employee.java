@@ -1,16 +1,20 @@
 package model;
 
-public class Employee {
+import java.io.Serializable;
+
+public class Employee implements Serializable {
     private final String idNumber;
     private final String fullName;
     private final String username;
+    private final String password;
     private final Role role;
     private final Branch branch;
 
-    public Employee(String idNumber, String fullName, String username, Role role, Branch branch) {
+    public Employee(String idNumber, String fullName, String username, String password, Role role, Branch branch) {
         this.idNumber = idNumber;
         this.fullName = fullName;
         this.username = username;
+        this.password = password;
         this.role = role;
         this.branch = branch;
     }
@@ -25,6 +29,10 @@ public class Employee {
 
     public String getUsername() {
         return username;
+    }
+
+    public String getPassword() {
+        return password;
     }
 
     public Role getRole() {
