@@ -4,6 +4,8 @@ import server.CreateAccountRequest;
 import server.CreateAccountResponse;
 import server.GetCustomersRequest;
 import server.GetCustomersResponse;
+import server.GetEmployeesRequest;
+import server.GetEmployeesResponse;
 import server.GetInventoryRequest;
 import server.GetInventoryResponse;
 import server.LoginRequest;
@@ -59,6 +61,12 @@ public class ServerConnection implements Closeable {
         out.writeObject(new GetCustomersRequest());
         out.flush();
         return (GetCustomersResponse) in.readObject();
+    }
+
+    public GetEmployeesResponse getEmployees() throws IOException, ClassNotFoundException {
+        out.writeObject(new GetEmployeesRequest());
+        out.flush();
+        return (GetEmployeesResponse) in.readObject();
     }
 
     @Override
