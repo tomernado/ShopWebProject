@@ -24,10 +24,13 @@ public class ReportsPanel extends JPanel {
 
     private SalesReport currentReport;
 
-    public ReportsPanel(ServerConnection connection) {
+    public ReportsPanel(ServerConnection connection, Runnable onBack) {
         this.connection = connection;
 
         setLayout(new BorderLayout(10, 10));
+        JButton backButton = new JButton("חזרה");
+        backButton.addActionListener(e -> onBack.run());
+        add(backButton, BorderLayout.NORTH);
         add(new JScrollPane(new JTable(tableModel)), BorderLayout.CENTER);
         add(buildControls(), BorderLayout.SOUTH);
     }

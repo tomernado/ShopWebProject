@@ -10,10 +10,13 @@ public class LogsPanel extends JPanel {
     private final JTextArea logArea = new JTextArea();
     private final JLabel statusLabel = new JLabel(" ");
 
-    public LogsPanel(ServerConnection connection) {
+    public LogsPanel(ServerConnection connection, Runnable onBack) {
         this.connection = connection;
 
         setLayout(new BorderLayout(10, 10));
+        JButton backButton = new JButton("חזרה");
+        backButton.addActionListener(e -> onBack.run());
+        add(backButton, BorderLayout.NORTH);
         logArea.setEditable(false);
         logArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
         add(new JScrollPane(logArea), BorderLayout.CENTER);

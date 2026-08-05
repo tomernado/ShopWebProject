@@ -7,7 +7,9 @@ import javax.swing.*;
 import java.awt.*;
 
 public class DashboardPanel extends JPanel {
-    public DashboardPanel(Employee employee, Runnable onOpenAdmin, Runnable onOpenPurchase) {
+    public DashboardPanel(Employee employee, Runnable onOpenAdmin, Runnable onOpenPurchase,
+                           Runnable onOpenCustomers, Runnable onOpenEmployees,
+                           Runnable onOpenReports, Runnable onOpenLogs) {
         setLayout(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
         c.insets = new Insets(5, 5, 5, 5);
@@ -20,16 +22,23 @@ public class DashboardPanel extends JPanel {
         c.gridy = 2;
         add(new JLabel("סניף: " + employee.getBranch().getName()), c);
 
-        JButton purchaseButton = new JButton("רכישה");
-        purchaseButton.addActionListener(e -> onOpenPurchase.run());
-        c.gridy = 3;
-        add(purchaseButton, c);
+        int row = 3;
+        row = addButton(c, row, "רכישה", onOpenPurchase);
+        row = addButton(c, row, "לקוחות", onOpenCustomers);
+        row = addButton(c, row, "עובדים", onOpenEmployees);
+        row = addButton(c, row, "דוחות", onOpenReports);
 
         if (employee.getRole() == Role.MANAGER) {
-            JButton adminButton = new JButton("ניהול חשבונות");
-            adminButton.addActionListener(e -> onOpenAdmin.run());
-            c.gridy = 4;
-            add(adminButton, c);
+            row = addButton(c, row, "ניהול חשבונות", onOpenAdmin);
+            addButton(c, row, "לוגים", onOpenLogs);
         }
+    }
+
+    private int addButton(GridBagConstraints c, int row, String label, Runnable onClick) {
+        JButton button = new JButton(label);
+        button.addActionListener(e -> onClick.run());
+        c.gridy = row;
+        add(button, c);
+        return row + 1;
     }
 }

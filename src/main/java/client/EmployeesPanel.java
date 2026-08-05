@@ -14,10 +14,13 @@ public class EmployeesPanel extends JPanel {
             new Object[]{"שם מלא", "ת\"ז", "מס' עובד", "טלפון", "מס' חשבון", "תפקיד", "סניף"}, 0);
     private final JLabel statusLabel = new JLabel(" ");
 
-    public EmployeesPanel(ServerConnection connection) {
+    public EmployeesPanel(ServerConnection connection, Runnable onBack) {
         this.connection = connection;
 
         setLayout(new BorderLayout(10, 10));
+        JButton backButton = new JButton("חזרה");
+        backButton.addActionListener(e -> onBack.run());
+        add(backButton, BorderLayout.NORTH);
         add(new JScrollPane(new JTable(tableModel)), BorderLayout.CENTER);
 
         JButton refreshButton = new JButton("רענון");
