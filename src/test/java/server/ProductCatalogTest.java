@@ -33,4 +33,9 @@ class ProductCatalogTest {
     void unknownBranchHasNoInventory() {
         assertNull(catalog.getInventoryForBranch("nope"));
     }
+
+    @Test
+    void getAllProductsReturnsAllThreeSeededProducts() {
+        assertEquals(3, catalog.getAllProducts().size());
+    }
 }

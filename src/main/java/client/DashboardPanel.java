@@ -7,7 +7,7 @@ import javax.swing.*;
 import java.awt.*;
 
 public class DashboardPanel extends JPanel {
-    public DashboardPanel(Employee employee, Runnable onOpenAdmin) {
+    public DashboardPanel(Employee employee, Runnable onOpenAdmin, Runnable onOpenPurchase) {
         setLayout(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
         c.insets = new Insets(5, 5, 5, 5);
@@ -20,10 +20,15 @@ public class DashboardPanel extends JPanel {
         c.gridy = 2;
         add(new JLabel("סניף: " + employee.getBranch().getName()), c);
 
+        JButton purchaseButton = new JButton("רכישה");
+        purchaseButton.addActionListener(e -> onOpenPurchase.run());
+        c.gridy = 3;
+        add(purchaseButton, c);
+
         if (employee.getRole() == Role.MANAGER) {
             JButton adminButton = new JButton("ניהול חשבונות");
             adminButton.addActionListener(e -> onOpenAdmin.run());
-            c.gridy = 3;
+            c.gridy = 4;
             add(adminButton, c);
         }
     }

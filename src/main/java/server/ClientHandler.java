@@ -80,6 +80,8 @@ public class ClientHandler implements Runnable, ChatParticipant {
                 send(accountService.createAccount(loggedInEmployee.getRole(), request));
             } else if (message instanceof RecordSaleRequest request) {
                 send(saleService.recordSale(loggedInEmployee, request));
+            } else if (message instanceof GetInventoryRequest) {
+                send(new GetInventoryResponse(saleService.getInventorySnapshot(loggedInEmployee)));
             } else if (message instanceof ChatRequest) {
                 send(ChatDispatcher.getInstance().requestChat(this));
             } else if (message instanceof JoinChatRequest request) {
