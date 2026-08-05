@@ -18,6 +18,7 @@ public class MainFrame extends JFrame {
     private static final String LOGIN_CARD = "login";
     private static final String DASHBOARD_CARD = "dashboard";
     private static final String ADMIN_CARD = "admin";
+    private static final String PURCHASE_CARD = "purchase";
 
     private final ServerConnection connection;
     private final CardLayout cardLayout = new CardLayout();
@@ -38,12 +39,17 @@ public class MainFrame extends JFrame {
     }
 
     private void showDashboard(Employee employee) {
-        cards.add(new DashboardPanel(employee, () -> showAdmin(employee)), DASHBOARD_CARD);
+        cards.add(new DashboardPanel(employee, () -> showAdmin(employee), this::showPurchase), DASHBOARD_CARD);
         cardLayout.show(cards, DASHBOARD_CARD);
     }
 
     private void showAdmin(Employee employee) {
         cards.add(new AdminPanel(connection, BRANCHES), ADMIN_CARD);
         cardLayout.show(cards, ADMIN_CARD);
+    }
+
+    private void showPurchase() {
+        cards.add(new PurchasePanel(connection), PURCHASE_CARD);
+        cardLayout.show(cards, PURCHASE_CARD);
     }
 }
