@@ -149,7 +149,7 @@
   /* ---------- layout with side nav ---------- */
   .layout {
     display: grid;
-    grid-template-columns: 1fr 220px;
+    grid-template-columns: 220px 1fr;
     gap: 48px;
     align-items: start;
     margin-top: 40px;
@@ -161,8 +161,8 @@
   nav.toc {
     position: sticky;
     top: 24px;
-    border-right: 1px solid var(--line);
-    padding-right: 20px;
+    border-left: 1px solid var(--line);
+    padding-left: 20px;
     font-size: 14px;
   }
   nav.toc .eyebrow { display: block; margin-bottom: 12px; }
