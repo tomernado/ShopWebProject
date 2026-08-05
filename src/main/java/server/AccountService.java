@@ -1,5 +1,6 @@
 package server;
 
+import logging.SystemLogger;
 import model.Branch;
 import model.Employee;
 import model.Role;
@@ -41,6 +42,8 @@ public class AccountService {
                 branch
         );
         employeeDirectory.addEmployee(newEmployee);
+        SystemLogger.getInstance().log("ACCOUNT",
+                "Created account: " + request.getUsername() + " (" + request.getRole() + ")");
 
         return CreateAccountResponse.success();
     }
